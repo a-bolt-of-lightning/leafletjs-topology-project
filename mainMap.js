@@ -29,7 +29,7 @@ inside body:
  */
 
 
- 
+
 //dummy data
 var dummyData = [
     [
@@ -94,12 +94,28 @@ wrapper.appendChild(canvas);
 wrapper.appendChild(displayArea);
 
 
+//dummy markers
+var marker = L.marker([33.51, 55.68]).addTo(mymap);
+var marker = L.marker([34.51, 54.68]).addTo(mymap);
+
+
 
 drawLines(dummyData, handleMouseOverLines);
 
 createLegend(mymap);
 
 // handleMouseOverLines();
+
+
+const drawBtn = document.getElementById("drawLinkBtn");
+// drawBtn.addEventListener("click", e => drawLinkBetweenNodes(e, mymap));
+// drawLinkBetweenNodes(mymap);
+
+
+const addBtn = document.getElementById("addNodeToMainMap");
+// addBtn.addEventListener("click", addNodeToMainMap);
+console.log(addNodeToMainMap(mymap));
+
 
 /**
  * handles mouse events over the lines
@@ -207,14 +223,14 @@ function showLineNumberInBox(e, lambdaList) {
     if (xOff % 4 <= 2) {
         cursor = " ";
         lineNum = parseInt(xOff / 4);
-        if(lambdaList.includes(lineNum)){
+        if (lambdaList.includes(lineNum)) {
             cursor = lineNum;
         }
     } else {
         cursor = " ";
     }
     document.getElementById("displayArea").style.display = 'block';
-    document.getElementById("displayArea").innerHTML = 'Wavelength Number: '+ cursor;
+    document.getElementById("displayArea").innerHTML = 'Wavelength Number: ' + cursor;
     document.getElementById("displayArea").style.right = x + 'px';
     document.getElementById("displayArea").style.top = y + 'px';
 }
@@ -224,4 +240,84 @@ function showLineNumberInBox(e, lambdaList) {
  */
 function unshowLineNumberInBox() {
     document.getElementById("displayArea").innerHTML = "Wavelength Number: ";
+}
+
+
+//////////
+
+function drawLinkBetweenNodes(mymap) {
+
+
+    // var res = mymap.on("click", event => addLink(event));
+
+    // console.log('wtf');
+    // console.log(res);
+
+    return 4;
+
+
+}
+
+function addLink(e) {
+    console.log(e);
+}
+
+
+function addNodeToMainMap(mymap) {
+
+    var sendBack = false;
+
+    var data;
+    var marker;
+
+    var div = document.createElement("div");
+
+    var menu = L.control({ position: 'topright' });
+    var remBtn = document.createElement("button");
+    var createBtn = document.createElement("button");
+    var doneBtn = document.createElement("button");
+    // doneBtn.addEventListener("click", e => console.log("done"));
+    remBtn.addEventListener("click", e =>div.remove());
+    createBtn.addEventListener("click", e => {
+        marker = L.marker(mymap.getCenter(), {draggable: true}).addTo(mymap);
+    });
+    doneBtn.addEventListener("click", e => {
+        sendBack = true;
+        //set marker coords and data to some variable
+        marker.dragging.disable();
+        div.remove();
+        console.log(data);  
+        return data;
+
+    });
+    var dataIn = document.createElement("input");
+    dataIn.setAttribute("type", "text");
+    dataIn.addEventListener("input", e => data = e.target.value);
+    doneBtn.innerHTML = "Done!";
+    createBtn.innerHTML = "Create!";
+    remBtn.innerHTML = "x";
+
+    menu.onAdd = function (map) {
+
+        div.appendChild(createBtn);
+        div.appendChild(doneBtn);
+        div.appendChild(remBtn);
+        div.appendChild(dataIn);
+
+        return div;
+    };
+
+    menu.addTo(mymap);
+
+    // if(sendBack){
+    //     return data;
+    // }
+    //looks like i'm not gonna use this :(
+    // mymap.once("click", e => {
+    //     var marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(mymap);
+    // });
+}
+
+function createDraggableMarker(data, mymap) {
+
 }
