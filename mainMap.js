@@ -482,13 +482,17 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
 
         var linkData;
 
-        if (markerList.length < 2) {
-            popupAlert("choose 2 nodes", mymap);
+        if (markerList.length === 0) {
+            popupAlert("No chosen nodes.", mymap);
+            return;
+        }
+        else if (markerList.length === 1){
+            popupAlert("Chose a destination node.", mymap);
             return;
         }
 
         if (markerList[markerList.length - 1] === markerList[markerList.length - 2]) {
-            popupAlert("choose a destination node", mymap);
+            popupAlert("Chose a destination node.", mymap);
             return;
         }
 
@@ -542,13 +546,14 @@ function onSubmitLinkForm(paramValues, paramNames) {
 function popupAlert(msg, mymap) {
 
     var div = document.createElement("div");
-    div.setAttribute("class", "alert horizontal");
-    var alertTxt = document.createElement("h5");
+    div.setAttribute("class", "alert");
+    var alertTxt = document.createElement("div");
+    alertTxt.setAttribute("class", "alert-txt");
     var closeBtn = document.createElement("button");
 
     alertTxt.innerHTML = msg;
-    closeBtn.innerHTML = "X";
-    closeBtn.setAttribute("class", "mainmap-util-btn");
+    closeBtn.innerHTML = "x";
+    closeBtn.setAttribute("class", "mainmap-util-closebtn");
 
     closeBtn.addEventListener("click", () => div.remove());
 

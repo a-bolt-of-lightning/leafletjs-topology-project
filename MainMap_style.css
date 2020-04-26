@@ -79,11 +79,12 @@ map util styles
     /* padding: 0 8px; */
     background: white;
     /* selection-background-color: darkgray;  */
-    font: 10pt "Bahnschrift";
+    font: 10pt;
 }
 
 .mainmap-util-label {
-    margin-top: 3px;
+    padding-top: 4px;
+    padding-bottom: 1px;
     font: 10pt "Bahnschrift";
 }
 
@@ -101,10 +102,20 @@ map util styles
 }
 
 .alert {
-    background-color: rgb(194, 94, 119);
-    color: white;
+    background-color: white;
+    padding: 5px;
+    box-shadow: 
+         inset 0 -3em 3em rgba(255, 139, 139, 0.1), 
+               /* 0 0  0 2px rgb(255,255,255), */
+               0.3em 0.3em 1em rgba(0,0,0,0.3);
 }
 
+.alert-txt {
+    padding: inherit;
+    color: red;
+    font-size: small;
+
+}
 .horizontal {
     float: left;
     /* border: 1px solid green */
