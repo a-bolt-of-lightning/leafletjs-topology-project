@@ -654,8 +654,8 @@ function createLinkParams(paramValues, paramNames) {
         var param = document.createElement("input");
         param.setAttribute("id", paramNames[i]);
         param.setAttribute("class", "mainmap-util-input");
-        param.value = paramValues[i];
-        param.placeholder = paramValues[i];
+        // param.value = paramValues[i];
+        // param.placeholder = paramValues[i];
         param.setAttribute("type", "text");
 
         var paramLbl = document.createElement("label");
