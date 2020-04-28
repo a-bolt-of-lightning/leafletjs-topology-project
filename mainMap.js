@@ -355,16 +355,10 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
     div.setAttribute("id", "addNodeForm");
     div.setAttribute("class", "vertical");
 
-    var nodeParamLbl = document.createElement("label");
-    nodeParamLbl.setAttribute("class", "mainmap-util-label");
-    nodeParamLbl.innerHTML = "ROADM_Type: ";
+    var paramNames = ["RANDOM_Type"];
+    var paramValues = ["Directionless"];
 
-    var nodeParam = document.createElement("input");
-    nodeParam.setAttribute("id", "ROADM_Type");
-    nodeParam.setAttribute("class", "mainmap-util-input");
-    // nodeParam.value = "Directionless";
-    // nodeParam.placeholder = "Directionless";
-    nodeParam.setAttribute("type", "text");
+    var nodeParams = createParamsInputs(paramNames)
 
     var doneBtn = document.createElement("button");
     doneBtn.setAttribute("id", "submitNodeForm");
@@ -391,7 +385,7 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         // destNodepopup.setLatLng([33.51, 57.68]).openOn(mymap);
 
         console.log("llll");
-        nodeData = onSubmitNodeForm();
+        nodeData = onSubmitForm(paramValues, paramNames);
         marker = L.marker(mymap.getCenter(), { draggable: true });
 
         marker.on("click", e => {
@@ -435,20 +429,16 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         div.style.display = "none";
     });
 
-    div.appendChild(nodeParamLbl);
-    div.appendChild(nodeParam);
+    for(var i=0; i<nodeParams.length; i++){
+        div.appendChild(nodeParams[i].label);
+        div.appendChild(nodeParams[i].param);
+    }
     div.appendChild(doneBtn);
     div.appendChild(closeBtn);
     div.style.display = "none";
     return div;
 }
 
-function onSubmitNodeForm() {
-
-    return {
-        "ROADM_Type": document.getElementById("ROADM_Type").value,
-    };
-}
 
 function createAddLinkForm(featureGroup, links, markerList, mymap) {
 
@@ -461,7 +451,7 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
 
 
     //create link Params
-    linkParams = createLinkParams(paramValues, paramNames);
+    linkParams = createParamsInputs(paramNames);
     console.log(linkParams);
 
     var doneBtn = document.createElement("button");
@@ -505,7 +495,7 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
         var link = L.polyline(latlngs, { color: 'red' });
         featureGroup.addLayer(link);
 
-        linkData = onSubmitLinkForm(paramValues, paramNames);
+        linkData = onSubmitForm(paramValues, paramNames);
 
         links.push({
             "link": link,
@@ -522,7 +512,6 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
         div.appendChild(linkParams[i].label);
         div.appendChild(linkParams[i].param);
     }
-
     div.appendChild(doneBtn);
     div.appendChild(closeBtn);
 
@@ -530,16 +519,16 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
     return div;
 }
 
-function onSubmitLinkForm(paramValues, paramNames) {
+function onSubmitForm(paramValues, paramNames) {
 
-    linkParams = [];
+    params = [];
 
     for(var i=0; i<paramValues.length; i++){
         var param = document.getElementById(paramNames[i]).value;
         //checking for validity
-        linkParams.push(param);
+        params.push(param);
     }
-    return linkParams;
+    return params;
 }
 
 
@@ -657,10 +646,8 @@ function createLblTxtFromParamName(paramNames){
     return lblTxts;
 }
 
-function createLinkParams(paramValues, paramNames) {
+function createParamsInputs(paramNames) {
 
-
-    // var paramLblTxts = ["Fiber Type: ", "Loss Coefficient: ", "Beta: ", "Gamma: ", "Dispersion: "];
     var paramLblTxts = createLblTxtFromParamName(paramNames);
 
     var paramElements = [];
