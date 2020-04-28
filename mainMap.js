@@ -362,8 +362,8 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
     var nodeParam = document.createElement("input");
     nodeParam.setAttribute("id", "ROADM_Type");
     nodeParam.setAttribute("class", "mainmap-util-input");
-    nodeParam.value = "Directionless";
-    nodeParam.placeholder = "Directionless";
+    // nodeParam.value = "Directionless";
+    // nodeParam.placeholder = "Directionless";
     nodeParam.setAttribute("type", "text");
 
     var doneBtn = document.createElement("button");
@@ -386,8 +386,8 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         var nodeData;
         var marker;
 
-        var srcNodepopup = L.popup({ autoClose: false }).setContent("Source Node");
-        var destNodepopup = L.popup({ autoClose: false }).setContent("Destination Node");
+        // var srcNodepopup = L.popup({ autoClose: false }).setContent("Source Node");
+        // var destNodepopup = L.popup({ autoClose: false }).setContent("Destination Node");
         // destNodepopup.setLatLng([33.51, 57.68]).openOn(mymap);
 
         console.log("llll");
@@ -644,9 +644,24 @@ function setLinkSrcAndDest(markerList, marker) {
     return isSrc;
 }
 
+function createLblTxtFromParamName(paramNames){
+
+    var lblTxts = [];
+    for(var i=0; i< paramNames.length; i++){
+        var txt = paramNames[i].replace(/_/g, " ");
+        txt = txt.concat(": ");
+        console.log(txt);
+        lblTxts.push(txt);
+    }
+
+    return lblTxts;
+}
+
 function createLinkParams(paramValues, paramNames) {
 
-    var paramLblTxts = ["Fiber Type: ", "Loss Coefficient: ", "Beta: ", "Gamma: ", "Dispersion: "];
+
+    // var paramLblTxts = ["Fiber Type: ", "Loss Coefficient: ", "Beta: ", "Gamma: ", "Dispersion: "];
+    var paramLblTxts = createLblTxtFromParamName(paramNames);
 
     var paramElements = [];
 
@@ -654,8 +669,6 @@ function createLinkParams(paramValues, paramNames) {
         var param = document.createElement("input");
         param.setAttribute("id", paramNames[i]);
         param.setAttribute("class", "mainmap-util-input");
-        // param.value = paramValues[i];
-        // param.placeholder = paramValues[i];
         param.setAttribute("type", "text");
 
         var paramLbl = document.createElement("label");
@@ -669,19 +682,4 @@ function createLinkParams(paramValues, paramNames) {
     }
 
     return paramElements;
-
-
-    // var linkParam1 = document.createElement("input");
-    // linkParam1.setAttribute("id", "Fiber_Type");
-    // linkParam1.setAttribute("class", "mainmap-util-input");
-    // linkParam1.value = "param1-link";
-    // linkParam1.placeholder = "param1-link";
-    // linkParam1.setAttribute("type", "text");
-
-    // var linkParam2 = document.createElement("input");
-    // linkParam2.setAttribute("id", "linkParam2");
-    // linkParam2.setAttribute("class", "mainmap-util-input");
-    // linkParam2.value = "param2-link";
-    // linkParam2.placeholder = "param2-link";
-    // linkParam2.setAttribute("type", "text");
 }
