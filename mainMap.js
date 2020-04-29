@@ -473,10 +473,10 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
 
         var linkData;
 
+        // will uncomment this once I fixed the method
         // var linkValidity = checkLinkValidity(markerList, featureGroup);
 
         // if (!linkValidity.isValid) {
-        //     console.group(linkValidity);
         //     popupAlert(linkValidity.msg, mymap)
         //     return;
         // }
@@ -506,8 +506,6 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
                     markerList[markerList.length - 1].getLatLng()) 
                 && layer.getLatLngs().includes(
                     markerList[markerList.length - 2].getLatLng())) {
-                    // console.log("rep", layer.getLatLngs(), latlngs[0], latlngs[1]);
-                    // markerList = [];
                     popupAlert("rep", mymap);
                     exitVar = true;
                     return;
@@ -520,7 +518,7 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
             return;
         }
         
-        // just to make sure this line does nit get executed after returning, js is acting funky again
+        // just to make sure this line does not get executed after returning, js is acting funky again
         console.log("exec?");
 
         var latlngs = [
@@ -538,7 +536,6 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
             "linkData": linkData
         });
 
-        // console.log(links);
         div.style.display = "none";
 
     });
@@ -706,6 +703,8 @@ function createParamsInputs(paramNames) {
     return paramElements;
 }
 
+
+// not using this now - codes's acting strange
 function checkLinkValidity(markerList, featureGroup) {
 
     if (markerList.length === 0) {
@@ -737,8 +736,6 @@ function checkLinkValidity(markerList, featureGroup) {
         if (layer instanceof L.Polyline) {
             if (layer.getLatLngs().includes(latlngs[0]) && layer.getLatLngs().includes(latlngs[1])) {
                 console.log("rep", layer.getLatLngs(), latlngs[0], latlngs[1]);
-                // markerList = [];
-                // return false;
                 return {
                     "isValid": false,
                     "msg": "rep"
