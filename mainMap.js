@@ -65,7 +65,7 @@ var mymap = L.map('mapid').setView([33.6, 53.7], 13);
 
 //map tile-layer
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    // attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
     maxZoom: 6,
     id: 'mapbox/streets-v11',
     // x: 53,
@@ -355,10 +355,12 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
     div.setAttribute("id", "addNodeForm");
     div.setAttribute("class", "vertical");
 
-    var paramNames = ["RANDOM_Type"];
-    var paramValues = ["Directionless"];
+    var inputParams = {
+        "paramNames": ["RANDOM_Type"],
+        "paramValues": ["Directionless"]
+    }
 
-    var nodeParams = createParamsInputs(paramNames)
+    var nodeParams = createParamsInputs(inputParams.paramNames)
 
     var doneBtn = document.createElement("button");
     doneBtn.setAttribute("id", "submitNodeForm");
@@ -384,8 +386,7 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         // var destNodepopup = L.popup({ autoClose: false }).setContent("Destination Node");
         // destNodepopup.setLatLng([33.51, 57.68]).openOn(mymap);
 
-        console.log("llll");
-        nodeData = onSubmitForm(paramValues, paramNames);
+        nodeData = onSubmitForm(inputParams.paramValues, inputParams.paramNames);
         marker = L.marker(mymap.getCenter(), { draggable: true });
 
         marker.on("click", e => {
@@ -403,7 +404,6 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         marker.on("dragstart", e => {
 
             connectedLinks = []
-            // console.log(e.target.getLatLng());
             markerInitLatLng = e.target.getLatLng();
 
             getConnectedLinks(e.target, featureGroup, connectedLinks);
@@ -446,12 +446,13 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
     div.setAttribute("id", "addLinkForm");
     div.setAttribute("class", "vertical");
 
-    var paramValues = ["0", "0.2", "0", "1.40E-03", "3.16914E-19"];
-    var paramNames = ["Fiber_Type", "Loss_Coefficient", "Beta", "Gamma", "Dispersion"];
-
+    var inputParams = {
+        "paramValues": ["0", "0.2", "0", "1.40E-03", "3.16914E-19"],
+        "paramNames": ["Fiber_Type", "Loss_Coefficient", "Beta", "Gamma", "Dispersion"]
+    };
 
     //create link Params
-    linkParams = createParamsInputs(paramNames);
+    linkParams = createParamsInputs(inputParams.paramNames);
     console.log(linkParams);
 
     var doneBtn = document.createElement("button");
@@ -495,7 +496,7 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
         var link = L.polyline(latlngs, { color: 'red' });
         featureGroup.addLayer(link);
 
-        linkData = onSubmitForm(paramValues, paramNames);
+        linkData = onSubmitForm(inputParams.paramValues, inputParams.paramNames);
 
         links.push({
             "link": link,
@@ -525,7 +526,6 @@ function onSubmitForm(paramValues, paramNames) {
 
     for(var i=0; i<paramValues.length; i++){
         var param = document.getElementById(paramNames[i]).value;
-        //checking for validity
         params.push(param);
     }
     return params;
