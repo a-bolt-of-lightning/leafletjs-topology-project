@@ -373,7 +373,7 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
     closeBtn.innerHTML = "Close";
 
     closeBtn.addEventListener("click", e => {
-        console.log(featureGroup);
+        // console.log(featureGroup);
         document.getElementById("addNodeForm").style.display = "none";
     });
 
@@ -382,8 +382,8 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         var nodeData;
         var marker;
 
-        // var srcNodepopup = L.popup({ autoClose: false }).setContent("Source Node");
-        // var destNodepopup = L.popup({ autoClose: false }).setContent("Destination Node");
+        // var srcNodepopup = L.popup({closeOnClick: false}).setContent("Source Node");
+        // var destNodepopup = L.popup({closeOnClick: false}).setContent("Destination Node");
         // destNodepopup.setLatLng([33.51, 57.68]).openOn(mymap);
 
         nodeData = onSubmitForm(inputParams.paramValues, inputParams.paramNames);
@@ -391,10 +391,25 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
 
         marker.on("click", e => {
             console.log(e.target);
-            markerList.push(e.target);
-            // var isSrc = setLinkSrcAndDest(markerList, marker);
-            // if (isSrc) srcNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
-            // else destNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
+            //markerList gets too much pushs - must be handled
+            // markerList.push(e.target);
+            var isSrc = setLinkSrcAndDest(markerList, marker);
+            console.log(isSrc);
+            console.log("markerList",  markerList);
+
+            // if (srcNodepopup._isOpen) {
+            //     console.log("src exist")
+            //     if (destNodepopup.isOpen()) {
+            //         destNodepopup.close();
+            //         srcNodepopup.setLatLngs(e.target.getLatLng()).openOn(mymap);
+            //     } else {
+            //         console.log("pop up dest")
+            //         destNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
+            //     }
+            // } else {
+            //     console.log(srcNodepopup.isOpen(), destNodepopup.isOpen())
+            //     srcNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
+            // }
         });
 
 
@@ -503,21 +518,21 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
 
             if (layer instanceof L.Polyline) {
                 if (layer.getLatLngs().includes(
-                    markerList[markerList.length - 1].getLatLng()) 
-                && layer.getLatLngs().includes(
-                    markerList[markerList.length - 2].getLatLng())) {
+                    markerList[markerList.length - 1].getLatLng())
+                    && layer.getLatLngs().includes(
+                        markerList[markerList.length - 2].getLatLng())) {
                     popupAlert("rep", mymap);
                     exitVar = true;
                     return;
                 }
             }
 
-        });       
+        });
 
-        if(exitVar) {
+        if (exitVar) {
             return;
         }
-        
+
         // just to make sure this line does not get executed after returning, js is acting funky again
         console.log("exec?");
 
@@ -641,28 +656,46 @@ function getConnectedLinks(marker, featureGroup, connectedLinks) {
 
 function setLinkSrcAndDest(markerList, marker) {
 
-    var isSrc = true;
+    // var isSrc = true;
+
+    // if (markerList[0] == null) {
+    //     if (markerList[0] === marker)
+    //         return;
+    //     markerList.splice(0, 0, marker);
+    //     console.log("src n");
+    // }
+    // else if (markerList[1] == null) {
+    //     if (markerList[1] === marker)
+    //         return;
+    //     markerList.splice(1, 0, marker);
+    //     isSrc = false;
+    //     console.log("des n");
+    // }
+    // else {
+    //     markerList.splice(0, 0, marker);
+    //     markerList.splice(1, 0, null);
+    //     console.log("b fu");
+    // }
+
+    // return isSrc;
 
     if (markerList[0] == null) {
-        if (markerList[0] === marker)
-            return;
+        console.log('srccc   ');
         markerList.splice(0, 0, marker);
-        console.log("src n");
-    }
-    else if (markerList[1] == null) {
-        if (markerList[1] === marker)
-            return;
-        markerList.splice(1, 0, marker);
-        isSrc = false;
-        console.log("des n");
-    }
-    else {
-        markerList.splice(0, 0, marker);
-        markerList.splice(1, 0, null);
-        console.log("b fu");
+        return true;
+    } else {
+        if(markerList[1] == null){
+            console.log("desttt ");
+            markerList.splice(1, 0, marker);
+            return false;
+        }else{
+            console.log("haha markers go recc recc");
+            markerList.splice(0, 0, null);
+            markerList.splice(1, 0, null);
+            return setLinkSrcAndDest(markerList, marker);
+        }
     }
 
-    return isSrc;
 }
 
 function createLblTxtFromParamName(paramNames) {
