@@ -429,7 +429,7 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         div.style.display = "none";
     });
 
-    for(var i=0; i<nodeParams.length; i++){
+    for (var i = 0; i < nodeParams.length; i++) {
         div.appendChild(nodeParams[i].label);
         div.appendChild(nodeParams[i].param);
     }
@@ -473,11 +473,19 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
 
         var linkData;
 
+        // var linkValidity = checkLinkValidity(markerList, featureGroup);
+
+        // if (!linkValidity.isValid) {
+        //     console.group(linkValidity);
+        //     popupAlert(linkValidity.msg, mymap)
+        //     return;
+        // }
+
         if (markerList.length === 0) {
             popupAlert("No chosen nodes.", mymap);
             return;
         }
-        else if (markerList.length === 1){
+        else if (markerList.length === 1) {
             popupAlert("Chose a destination node.", mymap);
             return;
         }
@@ -487,11 +495,38 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
             return;
         }
 
-        latlngs = [
+
+        // put this to handle no returning out of the following loop, wtf is wrong with my code?
+        var exitVar = false;
+
+        featureGroup.eachLayer(layer => {
+
+            if (layer instanceof L.Polyline) {
+                if (layer.getLatLngs().includes(
+                    markerList[markerList.length - 1].getLatLng()) 
+                && layer.getLatLngs().includes(
+                    markerList[markerList.length - 2].getLatLng())) {
+                    // console.log("rep", layer.getLatLngs(), latlngs[0], latlngs[1]);
+                    // markerList = [];
+                    popupAlert("rep", mymap);
+                    exitVar = true;
+                    return;
+                }
+            }
+
+        });       
+
+        if(exitVar) {
+            return;
+        }
+        
+        // just to make sure this line does nit get executed after returning, js is acting funky again
+        console.log("exec?");
+
+        var latlngs = [
             markerList[markerList.length - 1].getLatLng(),
             markerList[markerList.length - 2].getLatLng(),
         ];
-        // console.log(latlngs);
 
         var link = L.polyline(latlngs, { color: 'red' });
         featureGroup.addLayer(link);
@@ -509,7 +544,7 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
     });
 
     //add link params list
-    for(var i=0; i<linkParams.length; i++){
+    for (var i = 0; i < linkParams.length; i++) {
         div.appendChild(linkParams[i].label);
         div.appendChild(linkParams[i].param);
     }
@@ -524,7 +559,7 @@ function onSubmitForm(paramValues, paramNames) {
 
     params = [];
 
-    for(var i=0; i<paramValues.length; i++){
+    for (var i = 0; i < paramValues.length; i++) {
         var param = document.getElementById(paramNames[i]).value;
         params.push(param);
     }
@@ -633,10 +668,10 @@ function setLinkSrcAndDest(markerList, marker) {
     return isSrc;
 }
 
-function createLblTxtFromParamName(paramNames){
+function createLblTxtFromParamName(paramNames) {
 
     var lblTxts = [];
-    for(var i=0; i< paramNames.length; i++){
+    for (var i = 0; i < paramNames.length; i++) {
         var txt = paramNames[i].replace(/_/g, " ");
         txt = txt.concat(": ");
         console.log(txt);
@@ -652,7 +687,7 @@ function createParamsInputs(paramNames) {
 
     var paramElements = [];
 
-    for(var i=0; i<paramNames.length; i++){
+    for (var i = 0; i < paramNames.length; i++) {
         var param = document.createElement("input");
         param.setAttribute("id", paramNames[i]);
         param.setAttribute("class", "mainmap-util-input");
@@ -669,4 +704,53 @@ function createParamsInputs(paramNames) {
     }
 
     return paramElements;
+}
+
+function checkLinkValidity(markerList, featureGroup) {
+
+    if (markerList.length === 0) {
+        return {
+            "isValid": false,
+            "msg": "No chosen nodes."
+        };
+    }
+    else if (markerList.length === 1) {
+        return {
+            "isValid": false,
+            "msg": "Chose a destination node."
+        };
+    }
+
+    if (markerList[markerList.length - 1] === markerList[markerList.length - 2]) {
+        return {
+            "isValid": false,
+            "msg": "Chose a destination node."
+        };
+    }
+
+    latlngs = [
+        markerList[markerList.length - 1].getLatLng(),
+        markerList[markerList.length - 2].getLatLng(),
+    ];
+
+    featureGroup.eachLayer(layer => {
+        if (layer instanceof L.Polyline) {
+            if (layer.getLatLngs().includes(latlngs[0]) && layer.getLatLngs().includes(latlngs[1])) {
+                console.log("rep", layer.getLatLngs(), latlngs[0], latlngs[1]);
+                // markerList = [];
+                // return false;
+                return {
+                    "isValid": false,
+                    "msg": "rep"
+                };
+            }
+        }
+
+    });
+
+    return {
+        "isValid": true,
+        "msg": ""
+    };
+
 }
