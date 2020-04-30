@@ -360,6 +360,9 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         "paramValues": ["Directionless"]
     }
 
+    var srcNodepopup = L.popup({closeOnClick: false, autoClose: false}).setContent("Source Node");
+    var destNodepopup = L.popup({closeOnClick: false, autoClose: false}).setContent("Destination Node");
+
     var nodeParams = createParamsInputs(inputParams.paramNames)
 
     var doneBtn = document.createElement("button");
@@ -382,34 +385,23 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         var nodeData;
         var marker;
 
-        // var srcNodepopup = L.popup({closeOnClick: false}).setContent("Source Node");
-        // var destNodepopup = L.popup({closeOnClick: false}).setContent("Destination Node");
-        // destNodepopup.setLatLng([33.51, 57.68]).openOn(mymap);
-
         nodeData = onSubmitForm(inputParams.paramValues, inputParams.paramNames);
         marker = L.marker(mymap.getCenter(), { draggable: true });
 
         marker.on("click", e => {
             console.log(e.target);
             //markerList gets too much pushs - must be handled
-            // markerList.push(e.target);
             var isSrc = setLinkSrcAndDest(markerList, marker);
             console.log(isSrc);
             console.log("markerList",  markerList);
 
-            // if (srcNodepopup._isOpen) {
-            //     console.log("src exist")
-            //     if (destNodepopup.isOpen()) {
-            //         destNodepopup.close();
-            //         srcNodepopup.setLatLngs(e.target.getLatLng()).openOn(mymap);
-            //     } else {
-            //         console.log("pop up dest")
-            //         destNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
-            //     }
-            // } else {
-            //     console.log(srcNodepopup.isOpen(), destNodepopup.isOpen())
-            //     srcNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
-            // }
+            if(isSrc){
+                console.log(srcNodepopup);
+                mymap.closePopup()
+                srcNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
+            }else{
+                destNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
+            }
         });
 
 
@@ -656,42 +648,19 @@ function getConnectedLinks(marker, featureGroup, connectedLinks) {
 
 function setLinkSrcAndDest(markerList, marker) {
 
-    // var isSrc = true;
-
-    // if (markerList[0] == null) {
-    //     if (markerList[0] === marker)
-    //         return;
-    //     markerList.splice(0, 0, marker);
-    //     console.log("src n");
-    // }
-    // else if (markerList[1] == null) {
-    //     if (markerList[1] === marker)
-    //         return;
-    //     markerList.splice(1, 0, marker);
-    //     isSrc = false;
-    //     console.log("des n");
-    // }
-    // else {
-    //     markerList.splice(0, 0, marker);
-    //     markerList.splice(1, 0, null);
-    //     console.log("b fu");
-    // }
-
-    // return isSrc;
-
     if (markerList[0] == null) {
         console.log('srccc   ');
-        markerList.splice(0, 0, marker);
+        markerList[0] = marker;
         return true;
     } else {
         if(markerList[1] == null){
             console.log("desttt ");
-            markerList.splice(1, 0, marker);
+            markerList[1] = marker;
             return false;
         }else{
             console.log("haha markers go recc recc");
-            markerList.splice(0, 0, null);
-            markerList.splice(1, 0, null);
+            markerList[0] = null;
+            markerList[1] = null;
             return setLinkSrcAndDest(markerList, marker);
         }
     }
