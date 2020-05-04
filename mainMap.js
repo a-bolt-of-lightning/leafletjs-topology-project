@@ -246,7 +246,6 @@ function unshowLineNumberInBox() {
 
 // function drawLinkBetweenNodes(mymap) {
 
-
 //     // var res = mymap.on("click", event => addLink(event));
 
 //     // console.log('wtf');
@@ -314,6 +313,10 @@ function topologyMenuHandler(mymap, dataVar) {
         div.remove();
         console.log(markers);
         console.log(links);
+
+        // send layers to map, delete the local featureGroup
+        addLayersToMap(featureGroup, mymap);
+
         dataVar = {
             "nodes": markers,
             "links": links,
@@ -752,4 +755,9 @@ function checkLinkValidity(markerList, featureGroup) {
         "msg": ""
     };
 
+}
+
+function addLayersToMap(featureGroup, mymap){
+
+    featureGroup.addTo(mymap);
 }
