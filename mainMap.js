@@ -110,10 +110,10 @@ createLegend(mymap);
 // drawLinkBetweenNodes(mymap);
 
 
-// const addBtn = document.getElementById("addNodeToMainMap");
-// addBtn.addEventListener("click", addNodeToMainMap);
+// const addBtn = document.getElementById("topologyMenuHandler");
+// addBtn.addEventListener("click", topologyMenuHandler);
 var dataVar;
-console.log(addNodeToMainMap(mymap, dataVar));
+console.log(topologyMenuHandler(mymap, dataVar));
 console.log(dataVar);
 
 
@@ -256,7 +256,7 @@ function unshowLineNumberInBox() {
 
 // }
 
-function addNodeToMainMap(mymap, dataVar) {
+function topologyMenuHandler(mymap, dataVar) {
 
     var markers = [];
     var links = [];
