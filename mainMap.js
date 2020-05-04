@@ -393,7 +393,7 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
 
         marker.on("click", e => {
             console.log(e.target);
-            //markerList gets too much pushs - must be handled
+            //possible bug when clicking on something other than the marker
             var isSrc = setLinkSrcAndDest(markerList, marker);
             console.log(isSrc);
             console.log("markerList",  markerList);
