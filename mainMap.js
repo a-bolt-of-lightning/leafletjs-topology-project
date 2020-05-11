@@ -496,12 +496,12 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
             return;
         }
         else if (markerList.length === 1) {
-            popupAlert("Chose a destination node.", mymap);
+            popupAlert("Choose a destination node.", mymap);
             return;
         }
 
         if (markerList[markerList.length - 1] === markerList[markerList.length - 2]) {
-            popupAlert("Chose a destination node.", mymap);
+            popupAlert("Choose a destination node.", mymap);
             return;
         }
 
@@ -516,7 +516,7 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
                     markerList[markerList.length - 1].getLatLng())
                     && layer.getLatLngs().includes(
                         markerList[markerList.length - 2].getLatLng())) {
-                    popupAlert("rep", mymap);
+                    popupAlert("Link already exists.", mymap);
                     exitVar = true;
                     return;
                 }
