@@ -363,8 +363,8 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         "paramValues": ["Directionless"]
     }
 
-    var srcNodepopup = L.popup({closeOnClick: false, autoClose: false}).setContent("Source Node");
-    var destNodepopup = L.popup({closeOnClick: false, autoClose: false}).setContent("Destination Node");
+    var srcNodepopup = L.popup({closeOnClick: false, autoClose: false, offset:  new L.Point(1, -20)}).setContent("Source Node");
+    var destNodepopup = L.popup({closeOnClick: false, autoClose: false, offset:  new L.Point(1, -20)}).setContent("Destination Node");
 
     var nodeParams = createParamsInputs(inputParams.paramNames)
 
