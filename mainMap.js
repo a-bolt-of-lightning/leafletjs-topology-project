@@ -366,7 +366,7 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
     var srcNodepopup = L.popup({closeOnClick: false, autoClose: false, offset:  new L.Point(1, -20)}).setContent("Source Node");
     var destNodepopup = L.popup({closeOnClick: false, autoClose: false, offset:  new L.Point(1, -20)}).setContent("Destination Node");
 
-    var nodeParams = createParamsInputs(inputParams.paramNames)
+    var nodeParams = createParamsInputs(inputParams.paramNames, inputParams.paramValues);
 
     var doneBtn = document.createElement("button");
     doneBtn.setAttribute("id", "submitNodeForm");
@@ -462,7 +462,7 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
     };
 
     //create link Params
-    linkParams = createParamsInputs(inputParams.paramNames);
+    linkParams = createParamsInputs(inputParams.paramNames, inputParams.paramValues);
     console.log(linkParams);
 
     var doneBtn = document.createElement("button");
@@ -683,7 +683,7 @@ function createLblTxtFromParamName(paramNames) {
     return lblTxts;
 }
 
-function createParamsInputs(paramNames) {
+function createParamsInputs(paramNames, paramValues) {
 
     var paramLblTxts = createLblTxtFromParamName(paramNames);
 
@@ -694,6 +694,9 @@ function createParamsInputs(paramNames) {
         param.setAttribute("id", paramNames[i]);
         param.setAttribute("class", "mainmap-util-input");
         param.setAttribute("type", "text");
+        param.placeholder = "DFLT: " + paramValues[i];
+        // param.addEventListener("focus", param.setAttribute("placeholder", ""));
+        // param.addEventListener("blur" , e => param.setAttribute("placeholder", "DFLT: "+paramValues[i]));
 
         var paramLbl = document.createElement("label");
         paramLbl.setAttribute("class", "mainmap-util-label");
