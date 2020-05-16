@@ -703,7 +703,7 @@ function createParamsInputs(paramNames, paramValues) {
         param.setAttribute("id", paramNames[i]);
         param.setAttribute("class", "mainmap-util-input");
         param.setAttribute("type", "text");
-        param.placeholder = "DFLT: " + paramValues[i];
+        param.placeholder = paramValues[i];
         // param.addEventListener("focus", param.setAttribute("placeholder", ""));
         // param.addEventListener("blur" , e => param.setAttribute("placeholder", "DFLT: "+paramValues[i]));
 
