@@ -500,7 +500,7 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
         //     return;
         // }
 
-        if (markerList.length === 0) {
+        if (markerList.length === 0 || markerList[markerList.length - 1]==undefined || markerList[markerList.length - 2]==undefined ) {
             popupAlert("No chosen nodes.", mymap);
             return;
         }
