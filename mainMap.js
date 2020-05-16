@@ -109,12 +109,20 @@ createLegend(mymap);
 // drawBtn.addEventListener("click", e => drawLinkBetweenNodes(e, mymap));
 // drawLinkBetweenNodes(mymap);
 
+var globalVar;
+var dataVar = "l";
+const addTopBtn = document.getElementById("topology-menu-btn");
 
-// const addBtn = document.getElementById("topologyMenuHandler");
-// addBtn.addEventListener("click", topologyMenuHandler);
-var dataVar;
-console.log(topologyMenuHandler(mymap, dataVar));
-console.log(dataVar);
+addTopBtn.addEventListener("click", e => {
+    console.log('globar var: ');
+    console.log(globalVar);
+    // dataVar = dataVar + "p";
+    if (document.getElementById("topology-panel") !== null)
+        return;
+    topologyMenuHandler(mymap, dataVar);
+});
+
+// console.log(topologyMenuHandler(mymap, dataVar));
 
 
 /**
@@ -300,7 +308,7 @@ function topologyMenuHandler(mymap, dataVar) {
         document.getElementById("addNodeForm").style.display = "block";
     });
 
-
+    updateVar = "";
 
     doneBtn.addEventListener("click", e => {
         // sendBack = true;
@@ -317,11 +325,12 @@ function topologyMenuHandler(mymap, dataVar) {
         // send layers to map, delete the local featureGroup
         addLayersToMap(featureGroup, mymap);
 
-        dataVar = {
+        globalVar = {
             "nodes": markers,
             "links": links,
             "featureGroup": featureGroup
         }
+
     });
 
     doneBtn.innerHTML = "Done";
@@ -363,8 +372,8 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         "paramValues": ["Directionless"]
     }
 
-    var srcNodepopup = L.popup({closeOnClick: false, autoClose: false, offset:  new L.Point(1, -20)}).setContent("Source Node");
-    var destNodepopup = L.popup({closeOnClick: false, autoClose: false, offset:  new L.Point(1, -20)}).setContent("Destination Node");
+    var srcNodepopup = L.popup({ closeOnClick: false, autoClose: false, offset: new L.Point(1, -20) }).setContent("Source Node");
+    var destNodepopup = L.popup({ closeOnClick: false, autoClose: false, offset: new L.Point(1, -20) }).setContent("Destination Node");
 
     var nodeParams = createParamsInputs(inputParams.paramNames, inputParams.paramValues);
 
@@ -396,13 +405,13 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
             //possible bug when clicking on something other than the marker
             var isSrc = setLinkSrcAndDest(markerList, marker);
             console.log(isSrc);
-            console.log("markerList",  markerList);
+            console.log("markerList", markerList);
 
-            if(isSrc){
+            if (isSrc) {
                 console.log(srcNodepopup);
                 mymap.closePopup()
                 srcNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
-            }else{
+            } else {
                 destNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
             }
         });
@@ -656,11 +665,11 @@ function setLinkSrcAndDest(markerList, marker) {
         markerList[0] = marker;
         return true;
     } else {
-        if(markerList[1] == null){
+        if (markerList[1] == null) {
             console.log("desttt ");
             markerList[1] = marker;
             return false;
-        }else{
+        } else {
             console.log("haha markers go recc recc");
             markerList[0] = null;
             markerList[1] = null;
@@ -760,7 +769,7 @@ function checkLinkValidity(markerList, featureGroup) {
 
 }
 
-function addLayersToMap(featureGroup, mymap){
+function addLayersToMap(featureGroup, mymap) {
 
     featureGroup.addTo(mymap);
 }
