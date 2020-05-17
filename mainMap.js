@@ -124,6 +124,15 @@ addTopBtn.addEventListener("click", e => {
 
     if (document.getElementById("topology-panel") !== null)
         return;
+    if (globalVar !== undefined) {
+        globalVar.featureGroup.eachLayer(layer => {
+            if (layer instanceof L.Marker)
+                layer.addTo(markersGroup);
+            else if (layer instanceof L.Polyline)
+                layer.addTo(linksGroup);
+        })
+    }
+
     topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon);
 });
 
@@ -281,11 +290,12 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     var oldFeatureGroup = new L.LayerGroup();
     markersGroup.eachLayer(l => l.addTo(oldFeatureGroup));
     linksGroup.eachLayer(l => l.addTo(oldFeatureGroup));
-    // console.log("oldi");
-    // oldFeatureGroup.eachLayer(l => console.log(l));
+
+    //add click event handler for markers in oldFeatureGroup
+    addEventHandlerToOldFeatureGroup(oldFeatureGroup, markerList);
 
     var addNodeForm = createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon, oldFeatureGroup);
-    var addLinkForm = createAddLinkForm(featureGroup, links, markerList, mymap);
+    var addLinkForm = createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGroup);
 
     var div = document.createElement("div");
     div.setAttribute("id", "topology-panel");
@@ -323,12 +333,19 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     doneBtn.addEventListener("click", e => {
         // sendBack = true;
 
-        //remove marker events
+        //remove new marker events
         featureGroup.eachLayer(layer => {
             if (layer instanceof L.Marker)
                 layer.dragging.disable();
             layer.removeEventListener();
         });
+
+        //remove old marker events
+        oldFeatureGroup.eachLayer(layer => {
+            if (layer instanceof L.Marker)
+                layer.dragging.disable();
+            layer.removeEventListener();
+        })
 
         div.remove();
         console.log(markers);
@@ -486,7 +503,7 @@ function handleMarkerOnClick(marker, markerList) {
 }
 
 
-function createAddLinkForm(featureGroup, links, markerList, mymap) {
+function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGroup) {
 
     var div = document.createElement("div");
     div.setAttribute("id", "addLinkForm");
@@ -545,6 +562,7 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
         // put this to handle no returning out of the following loop, wtf is wrong with my code?
         var exitVar = false;
 
+        //check the new featuregreoup for a duplicate link
         featureGroup.eachLayer(layer => {
 
             if (layer instanceof L.Polyline) {
@@ -559,6 +577,21 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
             }
 
         });
+
+
+        // check oldFeatureGroup fro a duplicate link
+        oldFeatureGroup.eachLayer(layer => {
+            if (layer instanceof L.Polyline) {
+                if (layer.getLatLngs().includes(
+                    markerList[markerList.length - 1].getLatLng())
+                    && layer.getLatLngs().includes(
+                        markerList[markerList.length - 2].getLatLng())) {
+                    popupAlert("Link already exists.", mymap);
+                    exitVar = true;
+                    return;
+                }
+            }
+        })
 
         if (exitVar) {
             return;
@@ -799,6 +832,16 @@ function checkLinkValidity(markerList, featureGroup) {
 function addLayersToMap(featureGroup, mymap) {
 
     featureGroup.addTo(mymap);
+}
+
+function addEventHandlerToOldFeatureGroup(oldFeatureGroup, markerList) {
+
+    //give old markers same event handling as new markers
+    oldFeatureGroup.eachLayer(layer => {
+        if (layer instanceof L.Marker) {
+            layer.on("click", handleMarkerOnClick(layer, markerList));
+        }
+    })
 }
 
 function createCustomIcon(pathToIcon) {
