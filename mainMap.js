@@ -300,6 +300,13 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         links = [];
         featureGroup.remove();
 
+        //remove old marker events
+        oldFeatureGroup.eachLayer(layer => {
+            if (layer instanceof L.Marker)
+                layer.dragging.disable();
+            layer.removeEventListener();
+        });
+
         div.remove();
     });
 
@@ -328,7 +335,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
             if (layer instanceof L.Marker)
                 layer.dragging.disable();
             layer.removeEventListener();
-        })
+        });
 
         div.remove();
 
@@ -412,7 +419,6 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
         marker.on("click",
             handleMarkerOnClick(marker, markerList)
         );
-
 
         var connectedLinks = [];
         var markerInitLatLng;
