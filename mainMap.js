@@ -327,7 +327,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         featureGroup.eachLayer(layer => {
             if (layer instanceof L.Marker)
                 layer.dragging.disable();
-                layer.removeEventListener();
+            layer.removeEventListener();
         });
 
         div.remove();
@@ -384,9 +384,6 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
         "paramValues": ["Directionless"]
     }
 
-    var srcNodepopup = L.popup({ closeOnClick: false, autoClose: false, offset: new L.Point(1, -60) }).setContent("Source Node");
-    var destNodepopup = L.popup({ closeOnClick: false, autoClose: false, offset: new L.Point(1, -60) }).setContent("Destination Node");
-
     var nodeParams = createParamsInputs(inputParams.paramNames, inputParams.paramValues);
 
     var doneBtn = document.createElement("button");
@@ -416,7 +413,7 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
         });
 
         marker.on("click",
-            handleMarkerOnClick(marker, markerList, srcNodepopup, destNodepopup)
+            handleMarkerOnClick(marker, markerList)
         );
 
 
@@ -461,9 +458,17 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
     return div;
 }
 
-function handleMarkerOnClick(marker, markerList, srcNodepopup, destNodepopup) {
+function handleMarkerOnClick(marker, markerList) {
     // console.log(e.target);
     //possible bug when clicking on something other than the marker
+
+    var srcNodepopup = L.popup(
+        { closeOnClick: false, autoClose: false, offset: new L.Point(1, -60) })
+        .setContent("Source Node");
+    var destNodepopup = L.popup(
+        { closeOnClick: false, autoClose: false, offset: new L.Point(1, -60) })
+        .setContent("Destination Node");
+
     return function (event) {
         var isSrc = setLinkSrcAndDest(markerList, marker);
         console.log(isSrc);
