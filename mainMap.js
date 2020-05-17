@@ -110,10 +110,6 @@ var linksGroup = new L.LayerGroup();
 mymap.addLayer(linksGroup);
 
 
-// const drawBtn = document.getElementById("drawLinkBtn");
-// drawBtn.addEventListener("click", e => drawLinkBetweenNodes(e, mymap));
-// drawLinkBetweenNodes(mymap);
-
 var globalVar;
 var dataVar = "l";
 const addTopBtn = document.getElementById("topology-menu-btn");
@@ -262,19 +258,6 @@ function unshowLineNumberInBox() {
 }
 
 
-//////////
-
-// function drawLinkBetweenNodes(mymap) {
-
-//     // var res = mymap.on("click", event => addLink(event));
-
-//     // console.log('wtf');
-//     // console.log(res);
-
-//     return 4;
-
-// }
-
 function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     var markers = [];
@@ -348,8 +331,6 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         })
 
         div.remove();
-        console.log(markers);
-        console.log(links);
 
         // send layers to map, delete the local featureGroup
         addLayersToMap(featureGroup, mymap);
@@ -414,7 +395,6 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
     closeBtn.innerHTML = "Close";
 
     closeBtn.addEventListener("click", e => {
-        // console.log(featureGroup);
         document.getElementById("addNodeForm").style.display = "none";
     });
 
@@ -461,7 +441,6 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
             "node": marker,
             "nodeData": nodeData
         });
-        // console.log(markers);
         div.style.display = "none";
     });
 
@@ -476,8 +455,6 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
 }
 
 function handleMarkerOnClick(marker, markerList) {
-    // console.log(e.target);
-    //possible bug when clicking on something other than the marker
 
     var srcNodepopup = L.popup(
         { closeOnClick: false, autoClose: false, offset: new L.Point(1, -60) })
@@ -488,11 +465,9 @@ function handleMarkerOnClick(marker, markerList) {
 
     return function (event) {
         var isSrc = setLinkSrcAndDest(markerList, marker);
-        console.log(isSrc);
         console.log("markerList", markerList);
 
         if (isSrc) {
-            console.log(srcNodepopup);
             mymap.closePopup()
             srcNodepopup.setLatLng(marker.getLatLng()).openOn(mymap);
         } else {
@@ -516,7 +491,6 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
 
     //create link Params
     linkParams = createParamsInputs(inputParams.paramNames, inputParams.paramValues);
-    console.log(linkParams);
 
     var doneBtn = document.createElement("button");
     doneBtn.setAttribute("id", "submitLinkForm");
@@ -682,7 +656,6 @@ function connectLinkToNode(marker, connectedLinks, markerInitLatLng) {
 
         if (latLngEnd == markerInitLatLng) {
 
-            console.log("ee");
             link.setLatLngs([
                 link.getLatLngs()[0],
                 marker.getLatLng()
@@ -690,27 +663,20 @@ function connectLinkToNode(marker, connectedLinks, markerInitLatLng) {
         }
         else if (latLngStart == markerInitLatLng) {
 
-            console.log("ss");
             link.setLatLngs([
                 marker.getLatLng(),
                 link.getLatLngs()[1]
             ]);
         }
     }
-    console.log("init " + markerInitLatLng);
     return marker.getLatLng();
-
-
 }
 
 function getConnectedLinks(marker, featureGroup, connectedLinks) {
 
     featureGroup.eachLayer(layer => {
         if (layer instanceof L.Polyline) {
-
-            console.log(layer._latlngs);
             if (layer._latlngs.includes(marker.getLatLng())) {
-                console.log("layer" + layer._latlngs);
                 connectedLinks.push(layer)
             }
         }
@@ -745,7 +711,6 @@ function createLblTxtFromParamName(paramNames) {
     for (var i = 0; i < paramNames.length; i++) {
         var txt = paramNames[i].replace(/_/g, " ");
         txt = txt.concat(": ");
-        console.log(txt);
         lblTxts.push(txt);
     }
 
@@ -764,8 +729,6 @@ function createParamsInputs(paramNames, paramValues) {
         param.setAttribute("class", "mainmap-util-input");
         param.setAttribute("type", "text");
         param.placeholder = paramValues[i];
-        // param.addEventListener("focus", param.setAttribute("placeholder", ""));
-        // param.addEventListener("blur" , e => param.setAttribute("placeholder", "DFLT: "+paramValues[i]));
 
         var paramLbl = document.createElement("label");
         paramLbl.setAttribute("class", "mainmap-util-label");
