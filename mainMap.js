@@ -96,8 +96,8 @@ wrapper.appendChild(displayArea);
 //dummy markers
 var markersGroup = new L.LayerGroup();
 var pathToIcon = "img/server_blue.png";
-var marker = L.marker([33.51, 55.68], { icon: createCustomIcon(pathToIcon)}).addTo(markersGroup);
-var marker = L.marker([34.51, 54.68], {icon: createCustomIcon(pathToIcon)}).addTo(markersGroup);
+var marker = L.marker([33.51, 55.68], { icon: createCustomIcon(pathToIcon) }).addTo(markersGroup);
+var marker = L.marker([34.51, 54.68], { icon: createCustomIcon(pathToIcon) }).addTo(markersGroup);
 mymap.addLayer(markersGroup);
 
 drawLines(dummyData, handleMouseOverLines);
@@ -105,6 +105,9 @@ drawLines(dummyData, handleMouseOverLines);
 createLegend(mymap);
 
 // handleMouseOverLines();
+
+var linksGroup = new L.LayerGroup();
+mymap.addLayer(linksGroup);
 
 
 // const drawBtn = document.getElementById("drawLinkBtn");
@@ -118,13 +121,11 @@ const addTopBtn = document.getElementById("topology-menu-btn");
 addTopBtn.addEventListener("click", e => {
     console.log('globar var: ');
     console.log(globalVar);
-    // dataVar = dataVar + "p";
+
     if (document.getElementById("topology-panel") !== null)
         return;
-    topologyMenuHandler(mymap, dataVar, pathToIcon);
+    topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon);
 });
-
-// console.log(topologyMenuHandler(mymap, dataVar));
 
 
 /**
@@ -265,7 +266,7 @@ function unshowLineNumberInBox() {
 
 // }
 
-function topologyMenuHandler(mymap, dataVar, pathToIcon) {
+function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     var markers = [];
     var links = [];
@@ -276,7 +277,14 @@ function topologyMenuHandler(mymap, dataVar, pathToIcon) {
     console.log(featureGroup);
     featureGroup.addTo(mymap);
 
-    var addNodeForm = createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon);
+    // do this inside a function
+    var oldFeatureGroup = new L.LayerGroup();
+    markersGroup.eachLayer(l => l.addTo(oldFeatureGroup));
+    linksGroup.eachLayer(l => l.addTo(oldFeatureGroup));
+    // console.log("oldi");
+    // oldFeatureGroup.eachLayer(l => console.log(l));
+
+    var addNodeForm = createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon, oldFeatureGroup);
     var addLinkForm = createAddLinkForm(featureGroup, links, markerList, mymap);
 
     var div = document.createElement("div");
@@ -314,10 +322,12 @@ function topologyMenuHandler(mymap, dataVar, pathToIcon) {
 
     doneBtn.addEventListener("click", e => {
         // sendBack = true;
-        //set marker coords and data to some variable
+
+        //remove marker events
         featureGroup.eachLayer(layer => {
             if (layer instanceof L.Marker)
                 layer.dragging.disable();
+                layer.removeEventListener();
         });
 
         div.remove();
@@ -363,7 +373,7 @@ function topologyMenuHandler(mymap, dataVar, pathToIcon) {
 }
 
 
-function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon) {
+function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon, oldFeatureGroup) {
 
     var div = document.createElement("div");
     div.setAttribute("id", "addNodeForm");
@@ -374,8 +384,8 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon)
         "paramValues": ["Directionless"]
     }
 
-    var srcNodepopup = L.popup({ closeOnClick: false, autoClose: false, offset: new L.Point(1, -20) }).setContent("Source Node");
-    var destNodepopup = L.popup({ closeOnClick: false, autoClose: false, offset: new L.Point(1, -20) }).setContent("Destination Node");
+    var srcNodepopup = L.popup({ closeOnClick: false, autoClose: false, offset: new L.Point(1, -60) }).setContent("Source Node");
+    var destNodepopup = L.popup({ closeOnClick: false, autoClose: false, offset: new L.Point(1, -60) }).setContent("Destination Node");
 
     var nodeParams = createParamsInputs(inputParams.paramNames, inputParams.paramValues);
 
@@ -400,26 +410,14 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon)
         var marker;
 
         nodeData = onSubmitForm(inputParams.paramValues, inputParams.paramNames);
-        marker = L.marker(mymap.getCenter(), { 
+        marker = L.marker(mymap.getCenter(), {
             draggable: true,
             icon: createCustomIcon(pathToIcon)
         });
 
-        marker.on("click", e => {
-            console.log(e.target);
-            //possible bug when clicking on something other than the marker
-            var isSrc = setLinkSrcAndDest(markerList, marker);
-            console.log(isSrc);
-            console.log("markerList", markerList);
-
-            if (isSrc) {
-                console.log(srcNodepopup);
-                mymap.closePopup()
-                srcNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
-            } else {
-                destNodepopup.setLatLng(e.target.getLatLng()).openOn(mymap);
-            }
-        });
+        marker.on("click",
+            handleMarkerOnClick(marker, markerList, srcNodepopup, destNodepopup)
+        );
 
 
         var connectedLinks = [];
@@ -461,6 +459,25 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon)
     div.appendChild(closeBtn);
     div.style.display = "none";
     return div;
+}
+
+function handleMarkerOnClick(marker, markerList, srcNodepopup, destNodepopup) {
+    // console.log(e.target);
+    //possible bug when clicking on something other than the marker
+    return function (event) {
+        var isSrc = setLinkSrcAndDest(markerList, marker);
+        console.log(isSrc);
+        console.log("markerList", markerList);
+
+        if (isSrc) {
+            console.log(srcNodepopup);
+            mymap.closePopup()
+            srcNodepopup.setLatLng(marker.getLatLng()).openOn(mymap);
+        } else {
+            destNodepopup.setLatLng(marker.getLatLng()).openOn(mymap);
+        }
+    }
+
 }
 
 
@@ -781,14 +798,12 @@ function addLayersToMap(featureGroup, mymap) {
 
 function createCustomIcon(pathToIcon) {
 
+    // is buggy, must be fixed
     var myIcon = L.icon({
-        iconUrl: pathToIcon, 
+        iconUrl: pathToIcon,
         iconSize: [38, 55],
         iconAnchor: [22, 94],
-        popupAnchor: [-3, -76],
-        //shadowUrl: pathToIcon,
-        shadowSize: [68, 95],
-        shadowAnchor: [22, 94]
+        popupAnchor: [-3, -76]
     });
 
     return myIcon;
