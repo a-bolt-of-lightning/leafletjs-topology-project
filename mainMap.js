@@ -416,6 +416,10 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
             icon: createCustomIcon(pathToIcon)
         });
 
+        marker.bindTooltip("<h3>"+"markername"+"</h3>");
+
+        featureGroup.addLayer(marker);
+        
         marker.on("click",
             handleMarkerOnClick(marker, markerList)
         );
@@ -442,7 +446,7 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
             markerInitLatLng = connectLinkToNode(e.target, connectedLinks, markerInitLatLng);
         });
 
-        featureGroup.addLayer(marker);
+        
         markers.push({
             "node": marker,
             "nodeData": nodeData
