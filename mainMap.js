@@ -94,9 +94,11 @@ wrapper.appendChild(displayArea);
 
 
 //dummy markers
-// var marker = L.marker([33.51, 55.68]).addTo(mymap);
-// var marker = L.marker([34.51, 54.68]).addTo(mymap);
-
+var markersGroup = new L.LayerGroup();
+var pathToIcon = "img/server_blue.png";
+var marker = L.marker([33.51, 55.68], { icon: createCustomIcon(pathToIcon)}).addTo(markersGroup);
+var marker = L.marker([34.51, 54.68], {icon: createCustomIcon(pathToIcon)}).addTo(markersGroup);
+mymap.addLayer(markersGroup);
 
 drawLines(dummyData, handleMouseOverLines);
 
@@ -119,7 +121,7 @@ addTopBtn.addEventListener("click", e => {
     // dataVar = dataVar + "p";
     if (document.getElementById("topology-panel") !== null)
         return;
-    topologyMenuHandler(mymap, dataVar);
+    topologyMenuHandler(mymap, dataVar, pathToIcon);
 });
 
 // console.log(topologyMenuHandler(mymap, dataVar));
@@ -263,7 +265,7 @@ function unshowLineNumberInBox() {
 
 // }
 
-function topologyMenuHandler(mymap, dataVar) {
+function topologyMenuHandler(mymap, dataVar, pathToIcon) {
 
     var markers = [];
     var links = [];
@@ -274,7 +276,7 @@ function topologyMenuHandler(mymap, dataVar) {
     console.log(featureGroup);
     featureGroup.addTo(mymap);
 
-    var addNodeForm = createAddNodeForm(featureGroup, markers, markerList, mymap);
+    var addNodeForm = createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon);
     var addLinkForm = createAddLinkForm(featureGroup, links, markerList, mymap);
 
     var div = document.createElement("div");
@@ -361,7 +363,7 @@ function topologyMenuHandler(mymap, dataVar) {
 }
 
 
-function createAddNodeForm(featureGroup, markers, markerList, mymap) {
+function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon) {
 
     var div = document.createElement("div");
     div.setAttribute("id", "addNodeForm");
@@ -398,7 +400,10 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap) {
         var marker;
 
         nodeData = onSubmitForm(inputParams.paramValues, inputParams.paramNames);
-        marker = L.marker(mymap.getCenter(), { draggable: true });
+        marker = L.marker(mymap.getCenter(), { 
+            draggable: true,
+            icon: createCustomIcon(pathToIcon)
+        });
 
         marker.on("click", e => {
             console.log(e.target);
@@ -500,7 +505,7 @@ function createAddLinkForm(featureGroup, links, markerList, mymap) {
         //     return;
         // }
 
-        if (markerList.length === 0 || markerList[markerList.length - 1]==undefined || markerList[markerList.length - 2]==undefined ) {
+        if (markerList.length === 0 || markerList[markerList.length - 1] == undefined || markerList[markerList.length - 2] == undefined) {
             popupAlert("No chosen nodes.", mymap);
             return;
         }
@@ -772,4 +777,19 @@ function checkLinkValidity(markerList, featureGroup) {
 function addLayersToMap(featureGroup, mymap) {
 
     featureGroup.addTo(mymap);
+}
+
+function createCustomIcon(pathToIcon) {
+
+    var myIcon = L.icon({
+        iconUrl: pathToIcon, 
+        iconSize: [38, 55],
+        iconAnchor: [22, 94],
+        popupAnchor: [-3, -76],
+        //shadowUrl: pathToIcon,
+        shadowSize: [68, 95],
+        shadowAnchor: [22, 94]
+    });
+
+    return myIcon;
 }
