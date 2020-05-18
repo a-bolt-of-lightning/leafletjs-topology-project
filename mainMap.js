@@ -483,10 +483,10 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
 function handleMarkerOnClick(marker, markerList) {
 
     var srcNodepopup = L.popup(
-        { closeOnClick: false, autoClose: false, offset: new L.Point(1, -60) })
+        { closeOnClick: false, autoClose: false, offset: new L.Point(1, -15) })
         .setContent("Source Node");
     var destNodepopup = L.popup(
-        { closeOnClick: false, autoClose: false, offset: new L.Point(1, -60) })
+        { closeOnClick: false, autoClose: false, offset: new L.Point(1, -15) })
         .setContent("Destination Node");
 
     return function (event) {
@@ -897,8 +897,7 @@ function createCustomIcon(pathToIcon) {
     var myIcon = L.icon({
         iconUrl: pathToIcon,
         iconSize: [38, 55],
-        iconAnchor: [22, 94],
-        popupAnchor: [-3, -76]
+        iconAnchor: [25, 40]    
     });
 
     return myIcon;
