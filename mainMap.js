@@ -385,8 +385,9 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
     div.setAttribute("class", "vertical");
 
     var inputParams = {
-        "paramNames": ["RANDOM_Type"],
-        "paramValues": ["Directionless"]
+        "paramNames": ["Node_Name", "ROADM_Type"],
+        "paramValues": ["", "Directionless"],
+        "paramAllValues": ["", ["Directionless", "CDC"]]
     }
 
     var nodeParams = createParamsInputs(inputParams.paramNames, inputParams.paramValues);
@@ -410,16 +411,30 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
         var nodeData;
         var marker;
 
+        //check for input param validity:
+        if (!isNameValid(inputParams.paramNames[0], markers)) {
+            popupAlert("Invalid Node name", mymap);
+            return;
+        }
+
+        if (!areNodeParamsValid(inputParams.paramNames[1], inputParams.paramAllValues[1])) {
+            popupAlert("Invalid parameter. \n" +
+                "ROADM TYPE can have a value of \"Directionless\" or \"CDC\".", mymap);
+            return;
+        }
+
+        markerName = document.getElementById(inputParams.paramNames[0]).value;
+
         nodeData = onSubmitForm(inputParams.paramValues, inputParams.paramNames);
         marker = L.marker(mymap.getCenter(), {
             draggable: true,
             icon: createCustomIcon(pathToIcon)
         });
 
-        marker.bindTooltip("<h3>"+"markername"+"</h3>");
+        marker.bindTooltip("<h3>" + markerName + "</h3>");
 
         featureGroup.addLayer(marker);
-        
+
         marker.on("click",
             handleMarkerOnClick(marker, markerList)
         );
@@ -446,10 +461,11 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
             markerInitLatLng = connectLinkToNode(e.target, connectedLinks, markerInitLatLng);
         });
 
-        
+
         markers.push({
-            "node": marker,
-            "nodeData": nodeData
+            "name": markerName,
+            "layer": marker,
+            "data": nodeData
         });
         div.style.display = "none";
     });
@@ -619,11 +635,47 @@ function onSubmitForm(paramValues, paramNames) {
 
     params = [];
 
+    //set the default value if there is no input
     for (var i = 0; i < paramValues.length; i++) {
         var param = document.getElementById(paramNames[i]).value;
+        if (param === "" || param === null)
+            param = paramValues[i];
         params.push(param);
     }
     return params;
+}
+
+function isNameValid(nameId, inputList) {
+
+    //also check that the name is not already in the input list
+
+    name = document.getElementById(nameId).value;
+
+    if (name === null || name === "")
+        return false;
+
+    for (i = 0; i < inputList.length; i++) {
+        if (inputList[i].name.toLowerCase() === name.toLowerCase())
+            return false;
+    }
+    return true;
+}
+
+function areNodeParamsValid(paramName, allValues) {
+
+    nodeParam = document.getElementById(paramName);
+
+    if (nodeParam.value === null || nodeParam.value === "") {
+        return true;
+    }
+
+    for (i = 0; i < allValues.length; i++) {
+        if (nodeParam.value.trim() === allValues[i])
+            return true;
+    }
+
+    return false;
+
 }
 
 
