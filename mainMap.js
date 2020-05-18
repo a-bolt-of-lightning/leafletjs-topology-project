@@ -109,7 +109,6 @@ createLegend(mymap);
 var linksGroup = new L.LayerGroup();
 mymap.addLayer(linksGroup);
 
-
 var globalVar;
 var dataVar = "l";
 const addTopBtn = document.getElementById("topology-menu-btn");
@@ -697,7 +696,7 @@ function getMarkerName(marker, markers) {
         if (marker === markers[i].layer)
             return markers[i].name;
     }
-    return "";
+    return "no_name";
 }
 
 
