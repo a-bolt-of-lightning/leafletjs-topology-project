@@ -96,7 +96,7 @@ wrapper.appendChild(displayArea);
 //dummy markers
 var markersGroup = new L.LayerGroup();
 var pathToIcon = "img/server_blue.png";
-var marker = L.marker([33.51, 55.68], { icon: createCustomIcon(pathToIcon) }).addTo(markersGroup);
+var marker = L.marker([33.51, 55.68], { icon: createCustomIcon(pathToIcon), title:"node1" }).addTo(markersGroup);
 var marker = L.marker([34.51, 54.68], { icon: createCustomIcon(pathToIcon) }).addTo(markersGroup);
 mymap.addLayer(markersGroup);
 
@@ -324,16 +324,37 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
         //remove new marker events
         featureGroup.eachLayer(layer => {
+            savedTooltip = layer.getTooltip();
+            if(savedTooltip == undefined){
+                savedTooltip = "<h3>no_name</h3>";
+            }else{
+                savedTooltip = savedTooltip._content;
+            }
+            console.log("new", layer.getTooltip());
             if (layer instanceof L.Marker)
                 layer.dragging.disable();
             layer.removeEventListener();
+            layer.unbindTooltip();
+            layer.bindTooltip(savedTooltip);
+            console.log("new2", layer.getTooltip());
         });
 
         //remove old marker events
         oldFeatureGroup.eachLayer(layer => {
+            savedTooltip = layer.getTooltip();
+            if(savedTooltip == undefined){
+                savedTooltip = "<h3>no_name</h3>";
+            }else{
+                savedTooltip = savedTooltip._content;
+            }
+            console.log("od",layer.getTooltip());
             if (layer instanceof L.Marker)
                 layer.dragging.disable();
             layer.removeEventListener();
+            // if(!savedTooltip == undefined)
+            layer.unbindTooltip();
+            layer.bindTooltip(savedTooltip);
+            console.log("od2",layer.getTooltip());
         });
 
         div.remove();
@@ -692,11 +713,25 @@ function areNodeParamsValid(paramName, allValues) {
 }
 
 function getMarkerName(marker, markers) {
-    for (i = 0; i < markers.length; i++) {
-        if (marker === markers[i].layer)
-            return markers[i].name;
+
+    var tooltip = marker["_tooltip"];
+    if(tooltip == null || tooltip == undefined){
+        return "no_name";
     }
-    return "no_name";
+    x = tooltip["_content"];
+    var doc = new DOMParser().parseFromString(x, "text/xml");
+    var z = doc.documentElement.textContent;
+    NodeName = z.replace(/\s/g, '');
+    return NodeName;
+    // console.log("wtffffff"+NodeName);
+
+
+
+    // for (i = 0; i < markers.length; i++) {
+    //     if (marker === markers[i].layer)
+    //         return markers[i].name;
+    // }
+    // return "no_name";
 }
 
 
