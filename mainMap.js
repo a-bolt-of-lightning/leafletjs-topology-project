@@ -278,7 +278,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     addEventHandlerToOldFeatureGroup(oldFeatureGroup, markerList);
 
     var addNodeForm = createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon, oldFeatureGroup);
-    var addLinkForm = createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGroup);
+    var addLinkForm = createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGroup, markers);
 
     var div = document.createElement("div");
     div.setAttribute("id", "topology-panel");
@@ -504,7 +504,7 @@ function handleMarkerOnClick(marker, markerList) {
 }
 
 
-function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGroup) {
+function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGroup, markers) {
 
     var div = document.createElement("div");
     div.setAttribute("id", "addLinkForm");
@@ -600,9 +600,15 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
         // just to make sure this line does not get executed after returning, js is acting funky again
         console.log("exec?");
 
+        var startMarker = markerList[markerList.length - 1];
+        var endMarker = markerList[markerList.length - 2];
+
+        linkName = getMarkerName(startMarker, markers) + "-" + getMarkerName(endMarker, markers);
+        // console.log("lin"+linkName);
+
         var latlngs = [
-            markerList[markerList.length - 1].getLatLng(),
-            markerList[markerList.length - 2].getLatLng(),
+            startMarker.getLatLng(),
+            endMarker.getLatLng(),
         ];
 
         var link = L.polyline(latlngs, { color: 'red' });
@@ -611,8 +617,9 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
         linkData = onSubmitForm(inputParams.paramValues, inputParams.paramNames);
 
         links.push({
-            "link": link,
-            "linkData": linkData
+            "name": linkName,
+            "layer": link,
+            "data": linkData
         });
 
         div.style.display = "none";
@@ -676,6 +683,14 @@ function areNodeParamsValid(paramName, allValues) {
 
     return false;
 
+}
+
+function getMarkerName(marker, markers) {
+    for (i = 0; i < markers.length; i++) {
+        if (marker === markers[i].layer)
+            return markers[i].name;
+    }
+    return "";
 }
 
 
