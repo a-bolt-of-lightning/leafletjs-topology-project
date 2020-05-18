@@ -611,7 +611,14 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
             endMarker.getLatLng(),
         ];
 
-        var link = L.polyline(latlngs, { color: 'red' });
+        var link = L.polyline(latlngs,
+            {
+                color: 'black',
+                opacity: 0.8,
+                weight: 3
+            }
+        );
+        link.bindTooltip("<h3>" + linkName + "</h3>");
         featureGroup.addLayer(link);
 
         linkData = onSubmitForm(inputParams.paramValues, inputParams.paramNames);
