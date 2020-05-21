@@ -66,7 +66,7 @@ var mymap = L.map('mapid').setView([33.6, 53.7], 13);
 //map tile-layer
 L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     // attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-    maxZoom: 6,
+    maxZoom: 8,
     id: 'mapbox/streets-v11',
     // x: 53,
     // y: 33,
@@ -930,8 +930,8 @@ function createCustomIcon(pathToIcon) {
     // is buggy, must be fixed
     var myIcon = L.icon({
         iconUrl: pathToIcon,
-        iconSize: [38, 55],
-        iconAnchor: [25, 40]    
+        iconSize: [30, 30],
+        iconAnchor: [20, 30]    
     });
 
     return myIcon;
