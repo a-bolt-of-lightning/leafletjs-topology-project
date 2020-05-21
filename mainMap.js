@@ -96,7 +96,7 @@ wrapper.appendChild(displayArea);
 //dummy markers
 var markersGroup = new L.LayerGroup();
 var pathToIcon = "img/server_blue.png";
-var marker = L.marker([33.51, 55.68], { icon: createCustomIcon(pathToIcon), title:"node1" }).addTo(markersGroup);
+var marker = L.marker([33.51, 55.68], { icon: createCustomIcon(pathToIcon), title: "node1" }).addTo(markersGroup);
 var marker = L.marker([34.51, 54.68], { icon: createCustomIcon(pathToIcon) }).addTo(markersGroup);
 mymap.addLayer(markersGroup);
 
@@ -325,9 +325,9 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         //remove new marker events
         featureGroup.eachLayer(layer => {
             savedTooltip = layer.getTooltip();
-            if(savedTooltip == undefined){
+            if (savedTooltip == undefined) {
                 savedTooltip = "<h3>no_name</h3>";
-            }else{
+            } else {
                 savedTooltip = savedTooltip._content;
             }
             console.log("new", layer.getTooltip());
@@ -342,19 +342,19 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         //remove old marker events
         oldFeatureGroup.eachLayer(layer => {
             savedTooltip = layer.getTooltip();
-            if(savedTooltip == undefined){
+            if (savedTooltip == undefined) {
                 savedTooltip = "<h3>no_name</h3>";
-            }else{
+            } else {
                 savedTooltip = savedTooltip._content;
             }
-            console.log("od",layer.getTooltip());
+            console.log("od", layer.getTooltip());
             if (layer instanceof L.Marker)
                 layer.dragging.disable();
             layer.removeEventListener();
             // if(!savedTooltip == undefined)
             layer.unbindTooltip();
             layer.bindTooltip(savedTooltip);
-            console.log("od2",layer.getTooltip());
+            console.log("od2", layer.getTooltip());
         });
 
         div.remove();
@@ -531,8 +531,8 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
     div.setAttribute("class", "vertical");
 
     var inputParams = {
-        "paramValues": ["0", "0.2", "0", "1.40E-03", "3.16914E-19"],
-        "paramNames": ["Fiber_Type", "Loss_Coefficient", "Beta", "Gamma", "Dispersion"]
+        "paramValues": ["0.0", "0", "0.2", "0", "1.40E-03", "3.16914E-19"],
+        "paramNames": ["Length", "Fiber_Type", "Loss_Coefficient", "Beta", "Gamma", "Dispersion"]
     };
 
     //create link Params
@@ -575,6 +575,12 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
 
         if (markerList[markerList.length - 1] === markerList[markerList.length - 2]) {
             popupAlert("Choose a destination node.", mymap);
+            return;
+        }
+
+        // valid length
+        if (!isLengthValid(inputParams.paramNames[0])) {
+            popupAlert("Invalid Link Length", mymap);
             return;
         }
 
@@ -679,6 +685,18 @@ function onSubmitForm(paramValues, paramNames) {
     return params;
 }
 
+function isLengthValid(lengthId) {
+    console.log("tt");
+    length = document.getElementById(lengthId).value;
+
+    if (length == null)
+        return false;
+    if (isNaN(length) || length.toString().indexOf('.') == -1)
+        return false;
+
+    return true;
+}
+
 function isNameValid(nameId, inputList) {
 
     //also check that the name is not already in the input list
@@ -715,7 +733,7 @@ function areNodeParamsValid(paramName, allValues) {
 function getMarkerName(marker, markers) {
 
     var tooltip = marker["_tooltip"];
-    if(tooltip == null || tooltip == undefined){
+    if (tooltip == null || tooltip == undefined) {
         return "no_name";
     }
     x = tooltip["_content"];
@@ -931,7 +949,7 @@ function createCustomIcon(pathToIcon) {
     var myIcon = L.icon({
         iconUrl: pathToIcon,
         iconSize: [30, 30],
-        iconAnchor: [20, 30]    
+        iconAnchor: [20, 30]
     });
 
     return myIcon;
