@@ -264,9 +264,13 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     var markerList = [];
 
-    featureGroup = L.featureGroup();
-    console.log(featureGroup);
+    featureGroup = new L.featureGroup();
     featureGroup.addTo(mymap);
+
+    // adding rightclick eventhandler on featureGroup
+    // featureGroup.on("contextmenu", deleteTarget(markers, ));
+
+    // featureGroup.on("click", handleOnClick(markerList));
 
     // do this inside a function
     var oldFeatureGroup = new L.LayerGroup();
@@ -297,6 +301,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         markers = [];
         markerList = [];
         links = [];
+
         featureGroup.remove();
 
         //remove old marker events
@@ -322,6 +327,9 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     doneBtn.addEventListener("click", e => {
         // sendBack = true;
 
+        // disable featuregroup rightclick deleting
+        // featureGroup.removeEventListener();
+
         //remove new marker events
         featureGroup.eachLayer(layer => {
             savedTooltip = layer.getTooltip();
@@ -337,6 +345,12 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
             layer.unbindTooltip();
             layer.bindTooltip(savedTooltip);
             console.log("new2", layer.getTooltip());
+
+            //add default event handlers
+            if (layer instanceof L.Marker)
+                layer.on("click", groupClick);
+            else if (layer instanceof L.Polyline)
+                layer.on("click", link_click_event);
         });
 
         //remove old marker events
@@ -355,6 +369,12 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
             layer.unbindTooltip();
             layer.bindTooltip(savedTooltip);
             console.log("od2", layer.getTooltip());
+
+            //add default event handlers
+            if (layer instanceof L.Marker)
+                layer.on("click", groupClick);
+            else if (layer instanceof L.Polyline)
+                layer.on("click", link_click_event);
         });
 
         div.remove();
@@ -395,6 +415,17 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     };
 
     menu.addTo(mymap);
+}
+
+function deleteTarget(event) {
+    console.log(event.target);
+}
+
+function showContextMenu(event) {
+    if (event.target.layer instanceof L.Marker)
+        console.log("mCM");
+    else
+        return;
 }
 
 
@@ -455,9 +486,14 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
 
         featureGroup.addLayer(marker);
 
+        // use this method in featureGroup
+
         marker.on("click",
             handleMarkerOnClick(marker, markerList)
         );
+
+        // rightclick for delete
+        // marker.on("contextmenu", )
 
         var connectedLinks = [];
         var markerInitLatLng;
@@ -500,7 +536,20 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
     return div;
 }
 
+function handleOnClick(markerList) {
+    return function (event) {
+        console.log(event.target);
+        // if(event.target instanceof L.Marker){
+        console.log("whhh");
+        handleMarkerOnClick(event.target, markerList);
+        // }
+    }
+}
+
 function handleMarkerOnClick(marker, markerList) {
+
+    console.log("mark");
+    console.log(marker);
 
     var srcNodepopup = L.popup(
         { closeOnClick: false, autoClose: false, offset: new L.Point(1, -15) })
@@ -935,6 +984,23 @@ function addLayersToMap(featureGroup, mymap) {
 
 function addEventHandlerToOldFeatureGroup(oldFeatureGroup, markerList) {
 
+    // remove any previous 
+    oldFeatureGroup.eachLayer(layer => {
+        savedTooltip = layer.getTooltip();
+        if (savedTooltip == undefined) {
+            savedTooltip = "<h3>no_name</h3>";
+        } else {
+            savedTooltip = savedTooltip._content;
+        }
+        console.log("od", layer.getTooltip());
+        layer.removeEventListener();
+        // if(!savedTooltip == undefined)
+        layer.unbindTooltip();
+        layer.bindTooltip(savedTooltip);
+        console.log("od2", layer.getTooltip());
+    });
+
+
     //give old markers same event handling as new markers
     oldFeatureGroup.eachLayer(layer => {
         if (layer instanceof L.Marker) {
@@ -954,3 +1020,14 @@ function createCustomIcon(pathToIcon) {
 
     return myIcon;
 }
+
+// replacement functions - do not copy them into your code, you already have them.
+function link_click_event(event) {
+    console.log("works link");
+}
+
+function groupClick(event) {
+    console.log("works node");
+}
+
+
