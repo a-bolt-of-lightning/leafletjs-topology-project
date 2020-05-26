@@ -398,8 +398,8 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     menu.addTo(mymap);
 }
 
-function deleteTarget(event) {
-    console.log(event.target);
+function deleteOnRightClick(event) {
+    console.log(event.layer);
 }
 
 function showContextMenu(event) {
@@ -489,7 +489,8 @@ function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
         markers.push({
             "name": markerName,
             "layer": marker,
-            "data": nodeData
+            "data": nodeData,
+            "isNew": true
         });
         div.style.display = "none";
     });
@@ -658,7 +659,8 @@ function createAddLinkForm(featureGroup, links, mymap, linksGroup) {
         links.push({
             "name": linkName,
             "layer": link,
-            "data": linkData
+            "data": linkData,
+            "isNew": true
         });
 
         div.style.display = "none";
