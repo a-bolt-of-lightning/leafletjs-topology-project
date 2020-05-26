@@ -136,8 +136,8 @@ var dataVar = "l";
 const addTopBtn = document.getElementById("topology-menu-btn");
 
 addTopBtn.addEventListener("click", e => {
-    console.log('globar var: ');
-    console.log(globalVar);
+    // console.log('globar var: ');
+    // console.log(globalVar);
 
     if (document.getElementById("topology-panel") !== null)
         return;
@@ -224,7 +224,6 @@ function drawLines(data, callback) {
 function drawDetailBox(lambda) {
 
     var h = canvas.height;
-    console.log(h);
 
     var ctx = canvas.getContext("2d");
 
@@ -251,7 +250,6 @@ function drawDetailBox(lambda) {
  * @param  e: event 
  */
 function showLineNumberInBox(e, lambdaList) {
-    // console.log(e.target.getContext("2d"));
     x = e.clientX;
     y = e.clientY;
     var lineNum = 0;
@@ -283,10 +281,6 @@ var tempMarkerlist = [];
 
 function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
-    //reality check
-    // var m = L.marker([32.51, 55.68], { icon: createCustomIcon(pathToIcon) }).addTo(markersGroup);
-
-
     var markers = [];
     var links = [];
 
@@ -294,29 +288,14 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     featureGroup.addTo(mymap);
     featureGroup.on("click", handleMarkerOnClick);
 
-    // adding rightclick eventhandler on featureGroup
-    // featureGroup.on("contextmenu", deleteTarget(markers, ));
-
-
-    // FORGET ABOUT THE OLD FEATUREGROUP
-
-    // do this inside a function
-    var oldFeatureGroup = new L.featureGroup();
-    // oldFeatureGroup.addTo(mymap);
-
     //turn perivious methods off
     markersGroup.off("click", groupClick);
     linksGroup.off("click", link_click_event);
 
     markersGroup.on("click", handleMarkerOnClick);
 
-    // markersGroup.eachLayer(l => l.addTo(oldFeatureGroup));
-    // linksGroup.eachLayer(l => l.addTo(oldFeatureGroup));
 
-    //add click event handler for markers in oldFeatureGroup
-    // oldFeatureGroup.on("click", handleMarkerOnClick);
-
-    var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon, oldFeatureGroup, markersGroup, linksGroup);
+    var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon);
     var addLinkForm = createAddLinkForm(featureGroup, links, mymap, linksGroup);
 
     var div = document.createElement("div");
@@ -340,8 +319,6 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
         featureGroup.remove();
 
-        console.log(linksGroup);
-
         markersGroup.off("click", handleMarkerOnClick);
         restoreOldFeatureGroupEvents(markersGroup, linksGroup);
 
@@ -362,7 +339,6 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
         // remove new markers drag events
         featureGroup.eachLayer(layer => {
-            console.log("new", layer.getTooltip());
             if (layer instanceof L.Marker)
                 layer.dragging.disable();
         });
@@ -377,7 +353,6 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         // send layers to linksGroup and markersGroup, delete the local featureGroup
         featureGroup.eachLayer(l => {
             if (l instanceof L.Marker) {
-                console.log("borkkkk");
                 l.addTo(markersGroup);
             }
 
@@ -392,7 +367,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
             "featureGroup": featureGroup
         }
 
-        markersGroup.eachLayer(l => console.log(l));
+        // markersGroup.eachLayer(l => console.log(l));
         restoreOldFeatureGroupEvents(markersGroup, linksGroup);
     });
 
@@ -435,7 +410,7 @@ function showContextMenu(event) {
 }
 
 
-function createAddNodeForm(featureGroup, markers, mymap, pathToIcon, oldFeatureGroup, markersGroup, linksGroup) {
+function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
 
     var div = document.createElement("div");
     div.setAttribute("id", "addNodeForm");
@@ -492,15 +467,6 @@ function createAddNodeForm(featureGroup, markers, mymap, pathToIcon, oldFeatureG
 
         featureGroup.addLayer(marker);
 
-        // use this method in featureGroup
-
-        // marker.on("click",
-        //     handleMarkerOnClick(marker)
-        // );
-
-        // rightclick for delete
-        // marker.on("contextmenu", )
-
         var connectedLinks = [];
         var markerInitLatLng;
 
@@ -508,18 +474,14 @@ function createAddNodeForm(featureGroup, markers, mymap, pathToIcon, oldFeatureG
 
             connectedLinks = []
             markerInitLatLng = e.target.getLatLng();
-
             getConnectedLinks(e.target, featureGroup, connectedLinks);
         });
 
         marker.on("drag", e => {
-
-            console.log(e.target.getLatLng());
             markerInitLatLng = connectLinkToNode(e.target, connectedLinks, markerInitLatLng);
         })
 
         marker.on("dragend", e => {
-
             markerInitLatLng = connectLinkToNode(e.target, connectedLinks, markerInitLatLng);
         });
 
@@ -546,7 +508,6 @@ function createAddNodeForm(featureGroup, markers, mymap, pathToIcon, oldFeatureG
 function handleMarkerOnClick(event) {
 
     if (!(event.layer instanceof L.Marker)) {
-        console.log("nop");
         return;
     }
 
@@ -560,7 +521,6 @@ function handleMarkerOnClick(event) {
         .setContent("Destination Node");
 
     var isSrc = setLinkSrcAndDest(marker);
-    console.log("tempMarkerlist", tempMarkerlist);
 
     if (isSrc) {
         mymap.closePopup()
@@ -671,7 +631,7 @@ function createAddLinkForm(featureGroup, links, mymap, linksGroup) {
         }
 
         // just to make sure this line does not get executed after returning, js is acting funky again
-        console.log("exec?");
+        // console.log("exec?");
 
         var startMarker = tempMarkerlist[tempMarkerlist.length - 1];
         var endMarker = tempMarkerlist[tempMarkerlist.length - 2];
@@ -732,7 +692,6 @@ function onSubmitForm(paramValues, paramNames) {
 }
 
 function isLengthValid(lengthId) {
-    console.log("tt");
     length = document.getElementById(lengthId).value;
 
     if (length == null)
@@ -812,15 +771,14 @@ function popupAlert(msg, mymap) {
     };
 
     alertBox.addTo(mymap);
-    console.log(msg);
 }
 
 function connectLinkToNode(marker, connectedLinks, markerInitLatLng) {
 
     for (var i = 0; i < connectedLinks.length; i++) {
         var link = connectedLinks[i];
-        console.log("ll" + link.getLatLngs());
-        console.log("ma" + marker.getLatLng());
+        // console.log("ll" + link.getLatLngs());
+        // console.log("ma" + marker.getLatLng());
 
         var latLngStart = link._latlngs[0];
         var latLngEnd = link._latlngs[1];
@@ -851,23 +809,22 @@ function getConnectedLinks(marker, featureGroup, connectedLinks) {
                 connectedLinks.push(layer)
             }
         }
-
     });
 }
 
 function setLinkSrcAndDest(marker) {
 
     if (tempMarkerlist[0] == null) {
-        console.log('srccc   ');
+        // console.log('srccc   ');
         tempMarkerlist[0] = marker;
         return true;
     } else {
         if (tempMarkerlist[1] == null) {
-            console.log("desttt ");
+            // console.log("desttt ");
             tempMarkerlist[1] = marker;
             return false;
         } else {
-            console.log("haha markers go recc recc");
+            // console.log("haha markers go recc recc");
             tempMarkerlist[0] = null;
             tempMarkerlist[1] = null;
             return setLinkSrcAndDest(marker);
@@ -946,7 +903,7 @@ function checkLinkValidity(featureGroup) {
     featureGroup.eachLayer(layer => {
         if (layer instanceof L.Polyline) {
             if (layer.getLatLngs().includes(latlngs[0]) && layer.getLatLngs().includes(latlngs[1])) {
-                console.log("rep", layer.getLatLngs(), latlngs[0], latlngs[1]);
+                // console.log("rep", layer.getLatLngs(), latlngs[0], latlngs[1]);
                 return {
                     "isValid": false,
                     "msg": "rep"
