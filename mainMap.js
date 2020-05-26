@@ -94,20 +94,42 @@ wrapper.appendChild(displayArea);
 
 
 //dummy markers
-var markersGroup = new L.LayerGroup();
-var pathToIcon = "img/server_blue.png";
-var marker = L.marker([33.51, 55.68], { icon: createCustomIcon(pathToIcon), title: "node1" }).addTo(markersGroup);
-var marker = L.marker([34.51, 54.68], { icon: createCustomIcon(pathToIcon) }).addTo(markersGroup);
+var markersGroup = new L.FeatureGroup();
+markersGroup.on("click", groupClick);
 mymap.addLayer(markersGroup);
+var linksGroup = new L.FeatureGroup();
+mymap.addLayer(linksGroup);
+linksGroup.on("click", link_click_event);
+
+var pathToIcon = "img/server_blue.png";
+var marker1 = L.marker([33.51, 55.68], { icon: createCustomIcon(pathToIcon) })
+    .addTo(markersGroup).bindTooltip("<h3>" + "m1" + "</h3>");
+var marker2 = L.marker([34.51, 54.68], { icon: createCustomIcon(pathToIcon) })
+    .addTo(markersGroup).bindTooltip("<h3>" + "m2" + "</h3>");
+var marker3 = L.marker([34.51, 51.68], { icon: createCustomIcon(pathToIcon) })
+    .addTo(markersGroup).bindTooltip("<h3>" + "m3" + "</h3>");
+
+
+var latlngs = [
+    marker1.getLatLng(),
+    marker2.getLatLng(),
+];
+
+var link = L.polyline(latlngs,
+    {
+        color: 'black',
+        opacity: 0.8,
+        weight: 3
+    }
+).addTo(linksGroup).bindTooltip("m1-m2");
+
+
 
 drawLines(dummyData, handleMouseOverLines);
 
 createLegend(mymap);
 
 // handleMouseOverLines();
-
-var linksGroup = new L.LayerGroup();
-mymap.addLayer(linksGroup);
 
 var globalVar;
 var dataVar = "l";
@@ -257,31 +279,45 @@ function unshowLineNumberInBox() {
 }
 
 
+var tempMarkerlist = [];
+
 function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
+
+    //reality check
+    // var m = L.marker([32.51, 55.68], { icon: createCustomIcon(pathToIcon) }).addTo(markersGroup);
+
 
     var markers = [];
     var links = [];
 
-    var markerList = [];
-
     featureGroup = new L.featureGroup();
     featureGroup.addTo(mymap);
+    featureGroup.on("click", handleMarkerOnClick);
 
     // adding rightclick eventhandler on featureGroup
     // featureGroup.on("contextmenu", deleteTarget(markers, ));
 
-    // featureGroup.on("click", handleOnClick(markerList));
+
+    // FORGET ABOUT THE OLD FEATUREGROUP
 
     // do this inside a function
-    var oldFeatureGroup = new L.LayerGroup();
-    markersGroup.eachLayer(l => l.addTo(oldFeatureGroup));
-    linksGroup.eachLayer(l => l.addTo(oldFeatureGroup));
+    var oldFeatureGroup = new L.featureGroup();
+    // oldFeatureGroup.addTo(mymap);
+
+    //turn perivious methods off
+    markersGroup.off("click", groupClick);
+    linksGroup.off("click", link_click_event);
+
+    markersGroup.on("click", handleMarkerOnClick);
+
+    // markersGroup.eachLayer(l => l.addTo(oldFeatureGroup));
+    // linksGroup.eachLayer(l => l.addTo(oldFeatureGroup));
 
     //add click event handler for markers in oldFeatureGroup
-    addEventHandlerToOldFeatureGroup(oldFeatureGroup, markerList);
+    // oldFeatureGroup.on("click", handleMarkerOnClick);
 
-    var addNodeForm = createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon, oldFeatureGroup);
-    var addLinkForm = createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGroup, markers);
+    var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon, oldFeatureGroup, markersGroup, linksGroup);
+    var addLinkForm = createAddLinkForm(featureGroup, links, mymap, linksGroup);
 
     var div = document.createElement("div");
     div.setAttribute("id", "topology-panel");
@@ -299,17 +335,15 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     closeBtn.addEventListener("click", e => {
 
         markers = [];
-        markerList = [];
+        tempMarkerlist = [];
         links = [];
 
         featureGroup.remove();
 
-        //remove old marker events
-        oldFeatureGroup.eachLayer(layer => {
-            if (layer instanceof L.Marker)
-                layer.dragging.disable();
-            layer.removeEventListener();
-        });
+        console.log(linksGroup);
+
+        markersGroup.off("click", handleMarkerOnClick);
+        restoreOldFeatureGroupEvents(markersGroup, linksGroup);
 
         div.remove();
     });
@@ -325,62 +359,32 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     updateVar = "";
 
     doneBtn.addEventListener("click", e => {
-        // sendBack = true;
 
-        // disable featuregroup rightclick deleting
-        // featureGroup.removeEventListener();
-
-        //remove new marker events
+        // remove new markers drag events
         featureGroup.eachLayer(layer => {
-            savedTooltip = layer.getTooltip();
-            if (savedTooltip == undefined) {
-                savedTooltip = "<h3>no_name</h3>";
-            } else {
-                savedTooltip = savedTooltip._content;
-            }
             console.log("new", layer.getTooltip());
             if (layer instanceof L.Marker)
                 layer.dragging.disable();
-            layer.removeEventListener();
-            layer.unbindTooltip();
-            layer.bindTooltip(savedTooltip);
-            console.log("new2", layer.getTooltip());
-
-            //add default event handlers
-            if (layer instanceof L.Marker)
-                layer.on("click", groupClick);
-            else if (layer instanceof L.Polyline)
-                layer.on("click", link_click_event);
         });
 
-        //remove old marker events
-        oldFeatureGroup.eachLayer(layer => {
-            savedTooltip = layer.getTooltip();
-            if (savedTooltip == undefined) {
-                savedTooltip = "<h3>no_name</h3>";
-            } else {
-                savedTooltip = savedTooltip._content;
-            }
-            console.log("od", layer.getTooltip());
-            if (layer instanceof L.Marker)
-                layer.dragging.disable();
-            layer.removeEventListener();
-            // if(!savedTooltip == undefined)
-            layer.unbindTooltip();
-            layer.bindTooltip(savedTooltip);
-            console.log("od2", layer.getTooltip());
+        featureGroup.off("click", handleMarkerOnClick);
 
-            //add default event handlers
-            if (layer instanceof L.Marker)
-                layer.on("click", groupClick);
-            else if (layer instanceof L.Polyline)
-                layer.on("click", link_click_event);
-        });
+        markersGroup.off("click", handleMarkerOnClick);
+
 
         div.remove();
 
-        // send layers to map, delete the local featureGroup
-        addLayersToMap(featureGroup, mymap);
+        // send layers to linksGroup and markersGroup, delete the local featureGroup
+        featureGroup.eachLayer(l => {
+            if (l instanceof L.Marker) {
+                console.log("borkkkk");
+                l.addTo(markersGroup);
+            }
+
+            else if (l instanceof L.Polyline)
+                l.addTo(linksGroup);
+        });
+
 
         globalVar = {
             "nodes": markers,
@@ -388,6 +392,8 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
             "featureGroup": featureGroup
         }
 
+        markersGroup.eachLayer(l => console.log(l));
+        restoreOldFeatureGroupEvents(markersGroup, linksGroup);
     });
 
     doneBtn.innerHTML = "Done";
@@ -429,7 +435,7 @@ function showContextMenu(event) {
 }
 
 
-function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon, oldFeatureGroup) {
+function createAddNodeForm(featureGroup, markers, mymap, pathToIcon, oldFeatureGroup, markersGroup, linksGroup) {
 
     var div = document.createElement("div");
     div.setAttribute("id", "addNodeForm");
@@ -488,9 +494,9 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
 
         // use this method in featureGroup
 
-        marker.on("click",
-            handleMarkerOnClick(marker, markerList)
-        );
+        // marker.on("click",
+        //     handleMarkerOnClick(marker)
+        // );
 
         // rightclick for delete
         // marker.on("contextmenu", )
@@ -536,20 +542,15 @@ function createAddNodeForm(featureGroup, markers, markerList, mymap, pathToIcon,
     return div;
 }
 
-function handleOnClick(markerList) {
-    return function (event) {
-        console.log(event.target);
-        // if(event.target instanceof L.Marker){
-        console.log("whhh");
-        handleMarkerOnClick(event.target, markerList);
-        // }
+
+function handleMarkerOnClick(event) {
+
+    if (!(event.layer instanceof L.Marker)) {
+        console.log("nop");
+        return;
     }
-}
 
-function handleMarkerOnClick(marker, markerList) {
-
-    console.log("mark");
-    console.log(marker);
+    var marker = event.layer;
 
     var srcNodepopup = L.popup(
         { closeOnClick: false, autoClose: false, offset: new L.Point(1, -15) })
@@ -558,22 +559,20 @@ function handleMarkerOnClick(marker, markerList) {
         { closeOnClick: false, autoClose: false, offset: new L.Point(1, -15) })
         .setContent("Destination Node");
 
-    return function (event) {
-        var isSrc = setLinkSrcAndDest(markerList, marker);
-        console.log("markerList", markerList);
+    var isSrc = setLinkSrcAndDest(marker);
+    console.log("tempMarkerlist", tempMarkerlist);
 
-        if (isSrc) {
-            mymap.closePopup()
-            srcNodepopup.setLatLng(marker.getLatLng()).openOn(mymap);
-        } else {
-            destNodepopup.setLatLng(marker.getLatLng()).openOn(mymap);
-        }
+    if (isSrc) {
+        mymap.closePopup()
+        srcNodepopup.setLatLng(marker.getLatLng()).openOn(mymap);
+    } else {
+        destNodepopup.setLatLng(marker.getLatLng()).openOn(mymap);
     }
 
 }
 
 
-function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGroup, markers) {
+function createAddLinkForm(featureGroup, links, mymap, linksGroup) {
 
     var div = document.createElement("div");
     div.setAttribute("id", "addLinkForm");
@@ -606,23 +605,23 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
         var linkData;
 
         // will uncomment this once I fixed the method
-        // var linkValidity = checkLinkValidity(markerList, featureGroup);
+        // var linkValidity = checkLinkValidity(tempMarkerlist, featureGroup);
 
         // if (!linkValidity.isValid) {
         //     popupAlert(linkValidity.msg, mymap)
         //     return;
         // }
 
-        if (markerList.length === 0 || markerList[markerList.length - 1] == undefined || markerList[markerList.length - 2] == undefined) {
+        if (tempMarkerlist.length === 0 || tempMarkerlist[tempMarkerlist.length - 1] == undefined || tempMarkerlist[tempMarkerlist.length - 2] == undefined) {
             popupAlert("No chosen nodes.", mymap);
             return;
         }
-        else if (markerList.length === 1) {
+        else if (tempMarkerlist.length === 1) {
             popupAlert("Choose a destination node.", mymap);
             return;
         }
 
-        if (markerList[markerList.length - 1] === markerList[markerList.length - 2]) {
+        if (tempMarkerlist[tempMarkerlist.length - 1] === tempMarkerlist[tempMarkerlist.length - 2]) {
             popupAlert("Choose a destination node.", mymap);
             return;
         }
@@ -639,12 +638,11 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
 
         //check the new featuregreoup for a duplicate link
         featureGroup.eachLayer(layer => {
-
             if (layer instanceof L.Polyline) {
                 if (layer.getLatLngs().includes(
-                    markerList[markerList.length - 1].getLatLng())
+                    tempMarkerlist[tempMarkerlist.length - 1].getLatLng())
                     && layer.getLatLngs().includes(
-                        markerList[markerList.length - 2].getLatLng())) {
+                        tempMarkerlist[tempMarkerlist.length - 2].getLatLng())) {
                     popupAlert("Link already exists.", mymap);
                     exitVar = true;
                     return;
@@ -655,12 +653,12 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
 
 
         // check oldFeatureGroup fro a duplicate link
-        oldFeatureGroup.eachLayer(layer => {
+        linksGroup.eachLayer(layer => {
             if (layer instanceof L.Polyline) {
                 if (layer.getLatLngs().includes(
-                    markerList[markerList.length - 1].getLatLng())
+                    tempMarkerlist[tempMarkerlist.length - 1].getLatLng())
                     && layer.getLatLngs().includes(
-                        markerList[markerList.length - 2].getLatLng())) {
+                        tempMarkerlist[tempMarkerlist.length - 2].getLatLng())) {
                     popupAlert("Link already exists.", mymap);
                     exitVar = true;
                     return;
@@ -675,11 +673,8 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
         // just to make sure this line does not get executed after returning, js is acting funky again
         console.log("exec?");
 
-        var startMarker = markerList[markerList.length - 1];
-        var endMarker = markerList[markerList.length - 2];
-
-        linkName = getMarkerName(startMarker, markers) + "-" + getMarkerName(endMarker, markers);
-        // console.log("lin"+linkName);
+        var startMarker = tempMarkerlist[tempMarkerlist.length - 1];
+        var endMarker = tempMarkerlist[tempMarkerlist.length - 2];
 
         var latlngs = [
             startMarker.getLatLng(),
@@ -693,6 +688,8 @@ function createAddLinkForm(featureGroup, links, markerList, mymap, oldFeatureGro
                 weight: 3
             }
         );
+
+        linkName = getMarkerName(startMarker) + "-" + getMarkerName(endMarker);
         link.bindTooltip("<h3>" + linkName + "</h3>");
         featureGroup.addLayer(link);
 
@@ -779,7 +776,7 @@ function areNodeParamsValid(paramName, allValues) {
 
 }
 
-function getMarkerName(marker, markers) {
+function getMarkerName(marker) {
 
     var tooltip = marker["_tooltip"];
     if (tooltip == null || tooltip == undefined) {
@@ -790,17 +787,7 @@ function getMarkerName(marker, markers) {
     var z = doc.documentElement.textContent;
     NodeName = z.replace(/\s/g, '');
     return NodeName;
-    // console.log("wtffffff"+NodeName);
-
-
-
-    // for (i = 0; i < markers.length; i++) {
-    //     if (marker === markers[i].layer)
-    //         return markers[i].name;
-    // }
-    // return "no_name";
 }
-
 
 function popupAlert(msg, mymap) {
 
@@ -827,7 +814,6 @@ function popupAlert(msg, mymap) {
     alertBox.addTo(mymap);
     console.log(msg);
 }
-
 
 function connectLinkToNode(marker, connectedLinks, markerInitLatLng) {
 
@@ -869,22 +855,22 @@ function getConnectedLinks(marker, featureGroup, connectedLinks) {
     });
 }
 
-function setLinkSrcAndDest(markerList, marker) {
+function setLinkSrcAndDest(marker) {
 
-    if (markerList[0] == null) {
+    if (tempMarkerlist[0] == null) {
         console.log('srccc   ');
-        markerList[0] = marker;
+        tempMarkerlist[0] = marker;
         return true;
     } else {
-        if (markerList[1] == null) {
+        if (tempMarkerlist[1] == null) {
             console.log("desttt ");
-            markerList[1] = marker;
+            tempMarkerlist[1] = marker;
             return false;
         } else {
             console.log("haha markers go recc recc");
-            markerList[0] = null;
-            markerList[1] = null;
-            return setLinkSrcAndDest(markerList, marker);
+            tempMarkerlist[0] = null;
+            tempMarkerlist[1] = null;
+            return setLinkSrcAndDest(marker);
         }
     }
 
@@ -930,22 +916,22 @@ function createParamsInputs(paramNames, paramValues) {
 
 
 // not using this now - codes's acting strange
-function checkLinkValidity(markerList, featureGroup) {
+function checkLinkValidity(featureGroup) {
 
-    if (markerList.length === 0) {
+    if (tempMarkerlist.length === 0) {
         return {
             "isValid": false,
             "msg": "No chosen nodes."
         };
     }
-    else if (markerList.length === 1) {
+    else if (tempMarkerlist.length === 1) {
         return {
             "isValid": false,
             "msg": "Chose a destination node."
         };
     }
 
-    if (markerList[markerList.length - 1] === markerList[markerList.length - 2]) {
+    if (tempMarkerlist[tempMarkerlist.length - 1] === tempMarkerlist[tempMarkerlist.length - 2]) {
         return {
             "isValid": false,
             "msg": "Chose a destination node."
@@ -953,8 +939,8 @@ function checkLinkValidity(markerList, featureGroup) {
     }
 
     latlngs = [
-        markerList[markerList.length - 1].getLatLng(),
-        markerList[markerList.length - 2].getLatLng(),
+        tempMarkerlist[tempMarkerlist.length - 1].getLatLng(),
+        tempMarkerlist[tempMarkerlist.length - 2].getLatLng(),
     ];
 
     featureGroup.eachLayer(layer => {
@@ -982,33 +968,6 @@ function addLayersToMap(featureGroup, mymap) {
     featureGroup.addTo(mymap);
 }
 
-function addEventHandlerToOldFeatureGroup(oldFeatureGroup, markerList) {
-
-    // remove any previous 
-    oldFeatureGroup.eachLayer(layer => {
-        savedTooltip = layer.getTooltip();
-        if (savedTooltip == undefined) {
-            savedTooltip = "<h3>no_name</h3>";
-        } else {
-            savedTooltip = savedTooltip._content;
-        }
-        console.log("od", layer.getTooltip());
-        layer.removeEventListener();
-        // if(!savedTooltip == undefined)
-        layer.unbindTooltip();
-        layer.bindTooltip(savedTooltip);
-        console.log("od2", layer.getTooltip());
-    });
-
-
-    //give old markers same event handling as new markers
-    oldFeatureGroup.eachLayer(layer => {
-        if (layer instanceof L.Marker) {
-            layer.on("click", handleMarkerOnClick(layer, markerList));
-        }
-    })
-}
-
 function createCustomIcon(pathToIcon) {
 
     // is buggy, must be fixed
@@ -1019,6 +978,11 @@ function createCustomIcon(pathToIcon) {
     });
 
     return myIcon;
+}
+
+function restoreOldFeatureGroupEvents(markersGroup, linksGroup) {
+    markersGroup.on("click", groupClick);
+    linksGroup.on("click", link_click_event);
 }
 
 // replacement functions - do not copy them into your code, you already have them.
