@@ -278,11 +278,11 @@ function unshowLineNumberInBox() {
 
 
 var tempMarkerlist = [];
-
+var markers = [];
+var links = [];
 function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
-    var markers = [];
-    var links = [];
+
 
     featureGroup = new L.featureGroup();
     featureGroup.addTo(mymap);
@@ -293,6 +293,8 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     linksGroup.off("click", link_click_event);
 
     markersGroup.on("click", handleMarkerOnClick);
+
+    featureGroup.on("contextmenu", deleteOnRightClick);
 
 
     var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon);
@@ -398,17 +400,18 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     menu.addTo(mymap);
 }
 
+// check for links connected to marker, also delete the data. - params? - only works for new nodes now
 function deleteOnRightClick(event) {
     console.log(event.layer);
-}
+    if(event.layer instanceof L.Marker){
+        //delete data, connected links;
+    }
 
-function showContextMenu(event) {
-    if (event.target.layer instanceof L.Marker)
-        console.log("mCM");
-    else
-        return;
+    else if (event.layer instanceof L.Polyline){
+        // delete data
+    }
+        
 }
-
 
 function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
 
