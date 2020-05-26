@@ -320,7 +320,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         links = [];
 
         featureGroup.remove();
-
+        closeAllPopups();
         markersGroup.off("click", handleMarkerOnClick);
         restoreOldFeatureGroupEvents(markersGroup, linksGroup);
 
@@ -349,6 +349,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
         markersGroup.off("click", handleMarkerOnClick);
 
+        closeAllPopups();
 
         div.remove();
 
@@ -403,14 +404,14 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 // check for links connected to marker, also delete the data. - params? - only works for new nodes now
 function deleteOnRightClick(event) {
     console.log(event.layer);
-    if(event.layer instanceof L.Marker){
+    if (event.layer instanceof L.Marker) {
         //delete data, connected links;
     }
 
-    else if (event.layer instanceof L.Polyline){
+    else if (event.layer instanceof L.Polyline) {
         // delete data
     }
-        
+
 }
 
 function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
@@ -527,14 +528,13 @@ function handleMarkerOnClick(event) {
     var isSrc = setLinkSrcAndDest(marker);
 
     if (isSrc) {
-        mymap.closePopup()
+        closeAllPopups();
         srcNodepopup.setLatLng(marker.getLatLng()).openOn(mymap);
     } else {
         destNodepopup.setLatLng(marker.getLatLng()).openOn(mymap);
     }
 
 }
-
 
 function createAddLinkForm(featureGroup, links, mymap, linksGroup) {
 
@@ -944,6 +944,16 @@ function createCustomIcon(pathToIcon) {
 function restoreOldFeatureGroupEvents(markersGroup, linksGroup) {
     markersGroup.on("click", groupClick);
     linksGroup.on("click", link_click_event);
+}
+
+function closeAllPopups() {
+    mymap.eachLayer(l => {
+        // console.log("JOJO");
+        if (l instanceof L.Popup) {
+            // console.log("KONO DIO DA");
+            mymap.removeLayer(l);
+        }
+    });
 }
 
 // replacement functions - do not copy them into your code, you already have them.
