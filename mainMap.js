@@ -970,7 +970,6 @@ function addLayersToMap(featureGroup, mymap) {
 
 function createCustomIcon(pathToIcon) {
 
-    // is buggy, must be fixed
     var myIcon = L.icon({
         iconUrl: pathToIcon,
         iconSize: [30, 30],
