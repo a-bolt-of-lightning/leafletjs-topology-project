@@ -133,22 +133,16 @@ createLegend(mymap);
 
 var globalVar;
 var dataVar = "l";
+var deletedOldLayers = [];
 const addTopBtn = document.getElementById("topology-menu-btn");
 
 addTopBtn.addEventListener("click", e => {
     console.log('globar var: ');
     console.log(globalVar);
+    console.log(deletedOldLayers);
 
     if (document.getElementById("topology-panel") !== null)
         return;
-    // if (globalVar !== undefined) {
-    //     globalVar.featureGroup.eachLayer(layer => {
-    //         if (layer instanceof L.Marker)
-    //             layer.addTo(markersGroup);
-    //         else if (layer instanceof L.Polyline)
-    //             layer.addTo(linksGroup);
-    //     })
-    // }
 
     topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon);
 });
@@ -278,8 +272,6 @@ function unshowLineNumberInBox() {
 
 
 var tempMarkerlist = [];
-// var markers = [];
-// var links = [];
 function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     markers = [];
@@ -298,6 +290,9 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     markersGroup.on("click", handleMarkerOnClick);
 
     featureGroup.on("contextmenu", e => deleteOnRightClick(e, featureGroup, markers, links, mymap));
+
+    markersGroup.on("contextmenu", e => deleteOnRightClickOld(e, markersGroup, linksGroup, mymap, featureGroup));
+    linksGroup.on("contextmenu", e => deleteOnRightClickOld(e, markersGroup, linksGroup, mymap, featureGroup));
 
 
     var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon);
@@ -326,6 +321,10 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         featureGroup.remove();
         closeAllPopups();
         markersGroup.off("click", handleMarkerOnClick);
+
+        markersGroup.off("contextmenu");
+        linksGroup.off("contextmenu");
+
         restoreOldFeatureGroupEvents(markersGroup, linksGroup);
 
         div.remove();
@@ -354,6 +353,8 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         markersGroup.off("click", handleMarkerOnClick);
 
         featureGroup.off("contextmenu");
+        markersGroup.off("contextmenu");
+        linksGroup.off("contextmenu");
 
         closeAllPopups();
 
@@ -379,6 +380,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         fixLinksData(links);
 
         globalVar = JSON.stringify(globalVar);
+        deletedOldLayers = JSON.stringify(deletedOldLayers);
 
         restoreOldFeatureGroupEvents(markersGroup, linksGroup);
     });
@@ -427,7 +429,6 @@ function deleteOnRightClick(event, featureGroup, markers, links, mymap) {
 
     else if (event.layer instanceof L.Polyline) {
         link = event.layer;
-        var index = -1;
         console.log(getMarkerName(link));
         deleteOnRightClickLayer(link, links, featureGroup);
     }
@@ -435,6 +436,7 @@ function deleteOnRightClick(event, featureGroup, markers, links, mymap) {
 
 function deleteOnRightClickLayer(layer, list, featureGroup){
     var name = getMarkerName(layer);
+    var index = -1;
     list.forEach(l => {
         if(l.name == name){
             index = list.indexOf(l);
@@ -443,6 +445,27 @@ function deleteOnRightClickLayer(layer, list, featureGroup){
     });
     list.splice(index ,1);
     featureGroup.removeLayer(layer);
+}
+
+function deleteOnRightClickOld(event, markersGroup, linksGroup, mymap, featureGroup){
+    if (event.layer instanceof L.Marker) {
+        marker = event.layer;
+        var connectedLinks = [];
+        getConnectedLinks(marker, linksGroup, connectedLinks);
+        getConnectedLinks(marker, featureGroup ,connectedLinks)
+        if(connectedLinks.length == 0){
+            deletedOldLayers.push(getMarkerName(marker));
+            markersGroup.removeLayer(marker);
+        }else{
+            popupAlert("Marker cannot be deleted - remove the connected links first.",mymap);
+        }
+    }
+
+    else if (event.layer instanceof L.Polyline) {
+        link = event.layer;
+        deletedOldLayers.push(getMarkerName(link));
+        linksGroup.removeLayer(link);
+    }
 }
 
 function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
