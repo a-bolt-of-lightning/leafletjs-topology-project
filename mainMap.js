@@ -136,19 +136,19 @@ var dataVar = "l";
 const addTopBtn = document.getElementById("topology-menu-btn");
 
 addTopBtn.addEventListener("click", e => {
-    // console.log('globar var: ');
-    // console.log(globalVar);
+    console.log('globar var: ');
+    console.log(globalVar);
 
     if (document.getElementById("topology-panel") !== null)
         return;
-    if (globalVar !== undefined) {
-        globalVar.featureGroup.eachLayer(layer => {
-            if (layer instanceof L.Marker)
-                layer.addTo(markersGroup);
-            else if (layer instanceof L.Polyline)
-                layer.addTo(linksGroup);
-        })
-    }
+    // if (globalVar !== undefined) {
+    //     globalVar.featureGroup.eachLayer(layer => {
+    //         if (layer instanceof L.Marker)
+    //             layer.addTo(markersGroup);
+    //         else if (layer instanceof L.Polyline)
+    //             layer.addTo(linksGroup);
+    //     })
+    // }
 
     topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon);
 });
@@ -282,7 +282,10 @@ var markers = [];
 var links = [];
 function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
-
+    markers = [];
+    tempMarkerlist = [];
+    links = [];
+    globalVar = [];
 
     featureGroup = new L.featureGroup();
     featureGroup.addTo(mymap);
@@ -318,6 +321,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         markers = [];
         tempMarkerlist = [];
         links = [];
+        globalVar = [];
 
         featureGroup.remove();
         closeAllPopups();
@@ -366,11 +370,14 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
         globalVar = {
             "nodes": markers,
-            "links": links,
-            "featureGroup": featureGroup
-        }
+            "links": links
+        };
 
-        // markersGroup.eachLayer(l => console.log(l));
+        fixMarkersData(markers);
+        fixLinksData(links);
+
+        globalVar = JSON.stringify(globalVar);
+
         restoreOldFeatureGroupEvents(markersGroup, linksGroup);
     });
 
@@ -686,14 +693,14 @@ function createAddLinkForm(featureGroup, links, mymap, linksGroup) {
 
 function onSubmitForm(paramValues, paramNames) {
 
-    params = [];
+    params = {};
 
     //set the default value if there is no input
     for (var i = 0; i < paramValues.length; i++) {
         var param = document.getElementById(paramNames[i]).value;
         if (param === "" || param === null)
             param = paramValues[i];
-        params.push(param);
+        params[paramNames[i]] = param;
     }
     return params;
 }
@@ -955,6 +962,21 @@ function closeAllPopups() {
             // console.log("KONO DIO DA");
             mymap.removeLayer(l);
         }
+    });
+}
+
+function fixMarkersData(markers){
+    markers.forEach(marker => {
+        marker["location"] = marker["layer"].getLatLng();
+        delete marker["layer"]; 
+    });
+}
+
+function fixLinksData(links){
+    links.forEach(link => {
+        link["start"] = link.layer._latlngs[0];
+        link["end"] = link.layer._latlngs[1];
+        delete link["layer"]; 
     });
 }
 
