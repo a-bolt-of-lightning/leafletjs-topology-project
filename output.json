@@ -1,0 +1,90 @@
+{
+    "nodes": [
+        {
+            "name": "ll2",
+            "data": {
+                "Node_Name": "ll2",
+                "ROADM_Type": "Directionless"
+            },
+            "isNew": true,
+            "location": {
+                "lat": 32.52853837595345,
+                "lng": 51.553672585203216
+            }
+        },
+        {
+            "name": "ll23",
+            "data": {
+                "Node_Name": "ll23",
+                "ROADM_Type": "Directionless"
+            },
+            "isNew": true,
+            "location": {
+                "lat": 32.829006035561434,
+                "lng": 50.570565343942825
+            }
+        }
+    ],
+    "links": [
+        {
+            "name": "ll-m2",
+            "data": {
+                "Length": "3.35",
+                "Fiber_Type": "0",
+                "Loss_Coefficient": "0.2",
+                "Beta": "0",
+                "Gamma": "1.40E-03",
+                "Dispersion": "3.16914E-19"
+            },
+            "isNew": true,
+            "start": {
+                "lat": 34.72781133075222,
+                "lng": 52.50386808396775
+            },
+            "end": {
+                "lat": 34.51,
+                "lng": 54.68
+            }
+        },
+        {
+            "name": "ll23-ll2",
+            "data": {
+                "Length": "3.35",
+                "Fiber_Type": "0",
+                "Loss_Coefficient": "0.2",
+                "Beta": "0",
+                "Gamma": "1.40E-03",
+                "Dispersion": "3.16914E-19"
+            },
+            "isNew": true,
+            "start": {
+                "lat": 32.829006035561434,
+                "lng": 50.570565343942825
+            },
+            "end": {
+                "lat": 32.52853837595345,
+                "lng": 51.553672585203216
+            }
+        },
+        {
+            "name": "pppp-ll23",
+            "data": {
+                "Length": "3.9",
+                "Fiber_Type": "0",
+                "Loss_Coefficient": "0.2",
+                "Beta": "0",
+                "Gamma": "1.40E-03",
+                "Dispersion": "3.16914E-19"
+            },
+            "isNew": true,
+            "start": {
+                "lat": 33.5230967732148,
+                "lng": 51.85029399620242
+            },
+            "end": {
+                "lat": 32.829006035561434,
+                "lng": 50.570565343942825
+            }
+        }
+    ]
+}
