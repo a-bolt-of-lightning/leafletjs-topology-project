@@ -278,8 +278,8 @@ function unshowLineNumberInBox() {
 
 
 var tempMarkerlist = [];
-var markers = [];
-var links = [];
+// var markers = [];
+// var links = [];
 function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     markers = [];
@@ -297,7 +297,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     markersGroup.on("click", handleMarkerOnClick);
 
-    featureGroup.on("contextmenu", deleteOnRightClick);
+    featureGroup.on("contextmenu", e => deleteOnRightClick(e, featureGroup, markers, links));
 
 
     var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon);
@@ -352,6 +352,8 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         featureGroup.off("click", handleMarkerOnClick);
 
         markersGroup.off("click", handleMarkerOnClick);
+
+        featureGroup.off("contextmenu");
 
         closeAllPopups();
 
@@ -409,15 +411,28 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 }
 
 // check for links connected to marker, also delete the data. - params? - only works for new nodes now
-function deleteOnRightClick(event) {
+function deleteOnRightClick(event, featureGroup, markers, links) {
     console.log(event.layer);
     if (event.layer instanceof L.Marker) {
         //delete data, connected links;
     }
 
     else if (event.layer instanceof L.Polyline) {
-        // delete data
+        link = event.layer;
+        var index = -1;
+        console.log(getMarkerName(link));
+        name = getMarkerName(link);
+        links.forEach(l => {
+            if(l.name == name){
+                index = links.indexOf(l);
+                return;
+            }
+        });
+        links.splice(index ,1);
+        featureGroup.removeLayer(link);
     }
+
+
 
 }
 
