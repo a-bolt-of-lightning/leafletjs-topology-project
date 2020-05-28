@@ -653,6 +653,8 @@ function createAddLinkForm(featureGroup, links, mymap, linksGroup) {
             }
         );
 
+        closeAllPopups();
+
         linkName = getMarkerName(startMarker) + "-" + getMarkerName(endMarker);
         link.bindTooltip("<h3>" + linkName + "</h3>");
         featureGroup.addLayer(link);
