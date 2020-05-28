@@ -297,7 +297,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     markersGroup.on("click", handleMarkerOnClick);
 
-    featureGroup.on("contextmenu", e => deleteOnRightClick(e, featureGroup, markers, links));
+    featureGroup.on("contextmenu", e => deleteOnRightClick(e, featureGroup, markers, links, mymap));
 
 
     var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon);
@@ -411,29 +411,38 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 }
 
 // check for links connected to marker, also delete the data. - params? - only works for new nodes now
-function deleteOnRightClick(event, featureGroup, markers, links) {
+function deleteOnRightClick(event, featureGroup, markers, links, mymap) {
     console.log(event.layer);
     if (event.layer instanceof L.Marker) {
         //delete data, connected links;
+        marker = event.layer;
+        var connectedLinks = [];
+        getConnectedLinks(marker, featureGroup, connectedLinks);
+        if(connectedLinks.length == 0){
+            deleteOnRightClickLayer(marker, markers, featureGroup);
+        }else{
+            popupAlert("Marker cannot be deleted - remove the connected links first." ,mymap);
+        }
     }
 
     else if (event.layer instanceof L.Polyline) {
         link = event.layer;
         var index = -1;
         console.log(getMarkerName(link));
-        name = getMarkerName(link);
-        links.forEach(l => {
-            if(l.name == name){
-                index = links.indexOf(l);
-                return;
-            }
-        });
-        links.splice(index ,1);
-        featureGroup.removeLayer(link);
+        deleteOnRightClickLayer(link, links, featureGroup);
     }
+}
 
-
-
+function deleteOnRightClickLayer(layer, list, featureGroup){
+    var name = getMarkerName(layer);
+    list.forEach(l => {
+        if(l.name == name){
+            index = list.indexOf(l);
+            return;
+        }
+    });
+    list.splice(index ,1);
+    featureGroup.removeLayer(layer);
 }
 
 function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
