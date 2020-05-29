@@ -323,7 +323,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         });
     });
 
-    var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon);
+    var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon, oldMarkers);
     var addLinkForm = createAddLinkForm(featureGroup, links, mymap, linksGroup);
 
     var div = document.createElement("div");
@@ -522,7 +522,7 @@ function restoreDeletedLayers(markersGroup, linksGroup) {
     });
 }
 
-function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
+function createAddNodeForm(featureGroup, markers, mymap, pathToIcon, oldMarkers) {
 
     var div = document.createElement("div");
     div.setAttribute("id", "addNodeForm");
@@ -556,7 +556,7 @@ function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
         var marker;
 
         //check for input param validity:
-        if (!isNameValid(inputParams.paramNames[0], markers)) {
+        if (!isNameValid(inputParams.paramNames[0], markers) || !isNameValid(inputParams.paramNames[0], oldMarkers)) {
             popupAlert("Invalid Node name", mymap);
             return;
         }
