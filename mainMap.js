@@ -274,6 +274,7 @@ function unshowLineNumberInBox() {
 var tempMarkerlist = [];
 function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
+    deletedOldLayers = [];
     markers = [];
     tempMarkerlist = [];
     links = [];
@@ -324,6 +325,9 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
         markersGroup.off("contextmenu");
         linksGroup.off("contextmenu");
+
+        // restore deleted layers
+        restoreDeletedLayers(markersGroup, linksGroup)
 
         restoreOldFeatureGroupEvents(markersGroup, linksGroup);
 
@@ -454,7 +458,7 @@ function deleteOnRightClickOld(event, markersGroup, linksGroup, mymap, featureGr
         getConnectedLinks(marker, linksGroup, connectedLinks);
         getConnectedLinks(marker, featureGroup ,connectedLinks)
         if(connectedLinks.length == 0){
-            deletedOldLayers.push(getMarkerName(marker));
+            deletedOldLayers.push(marker);
             markersGroup.removeLayer(marker);
         }else{
             popupAlert("Marker cannot be deleted - remove the connected links first.",mymap);
@@ -463,7 +467,7 @@ function deleteOnRightClickOld(event, markersGroup, linksGroup, mymap, featureGr
 
     else if (event.layer instanceof L.Polyline) {
         link = event.layer;
-        deletedOldLayers.push(getMarkerName(link));
+        deletedOldLayers.push(link);
         linksGroup.removeLayer(link);
     }
 }
@@ -561,6 +565,15 @@ function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
     div.appendChild(closeBtn);
     div.style.display = "none";
     return div;
+}
+
+function restoreDeletedLayers(markersGroup, linksGroup){
+    deletedOldLayers.forEach(layer => {
+        if(layer instanceof L.Marker)
+            markersGroup.addLayer(layer);
+        else if(layer instanceof L.Polyline)
+            linksGroup.addLayer(layer);
+    });
 }
 
 
