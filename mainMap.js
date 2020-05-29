@@ -280,6 +280,9 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     links = [];
     globalVar = [];
 
+    var oldMarkers = [];
+    var oldLinks = [];
+
     featureGroup = new L.featureGroup();
     featureGroup.addTo(mymap);
     featureGroup.on("click", handleMarkerOnClick);
@@ -297,6 +300,28 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     enableOldMarkerDragging(markersGroup, linksGroup, featureGroup);
 
+    markersGroup.eachLayer(layer => {
+        oldMarkers.push({
+            "name": getMarkerName(layer),
+            "location": layer.getLatLng(),
+            "layer": layer,
+            "data": {},
+            "isNew": false
+        });
+    });
+
+    linksGroup.eachLayer(layer => {
+        oldLinks.push({
+            "name": getMarkerName(layer),
+            "start": "",
+            "end": "",
+            "startLoc": layer.getLatLngs()[0],
+            "endLoc": layer.getLatLngs()[1],
+            "layer": layer,
+            "data": {},
+            "isNew": false
+        });
+    });
 
     var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon);
     var addLinkForm = createAddLinkForm(featureGroup, links, mymap, linksGroup);
@@ -333,7 +358,9 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         linksGroup.off("contextmenu");
 
         // restore deleted layers
-        restoreDeletedLayers(markersGroup, linksGroup)
+        restoreDeletedLayers(markersGroup, linksGroup);
+
+        restoreDraggedLayersLocation(oldMarkers, oldLinks);
 
         restoreOldFeatureGroupEvents(markersGroup, linksGroup);
 
@@ -1064,6 +1091,20 @@ function enableOldMarkerDragging(markersGroup, linksGroup, featureGroup) {
         marker.on("dragend", e => {
             markerInitLatLng = connectLinkToNode(e.target, connectedLinks, markerInitLatLng);
         });
+    });
+}
+
+function restoreDraggedLayersLocation(oldMarkers, oldLinks){
+
+    oldMarkers.forEach(m => {
+        m.layer.setLatLng(m.location);
+    });
+
+    oldLinks.forEach(l => {
+        l.layer.setLatLngs([
+            l.startLoc,
+            l.endLoc
+        ]);
     });
 }
 
