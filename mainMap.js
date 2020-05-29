@@ -295,6 +295,8 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
     markersGroup.on("contextmenu", e => deleteOnRightClickOld(e, markersGroup, linksGroup, mymap, featureGroup));
     linksGroup.on("contextmenu", e => deleteOnRightClickOld(e, markersGroup, linksGroup, mymap, featureGroup));
 
+    enableOldMarkerDragging(markersGroup, linksGroup, featureGroup);
+
 
     var addNodeForm = createAddNodeForm(featureGroup, markers, mymap, pathToIcon);
     var addLinkForm = createAddLinkForm(featureGroup, links, mymap, linksGroup);
@@ -323,6 +325,10 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         closeAllPopups();
         markersGroup.off("click", handleMarkerOnClick);
 
+        markersGroup.eachLayer(layer => {
+            layer.dragging.disable();
+        });
+
         markersGroup.off("contextmenu");
         linksGroup.off("contextmenu");
 
@@ -350,6 +356,10 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         featureGroup.eachLayer(layer => {
             if (layer instanceof L.Marker)
                 layer.dragging.disable();
+        });
+
+        markersGroup.eachLayer(layer => {
+            layer.dragging.disable();
         });
 
         featureGroup.off("click", handleMarkerOnClick);
@@ -424,10 +434,10 @@ function deleteOnRightClick(event, featureGroup, markers, links, mymap) {
         marker = event.layer;
         var connectedLinks = [];
         getConnectedLinks(marker, featureGroup, connectedLinks);
-        if(connectedLinks.length == 0){
+        if (connectedLinks.length == 0) {
             deleteOnRightClickLayer(marker, markers, featureGroup);
-        }else{
-            popupAlert("Marker cannot be deleted - remove the connected links first." ,mymap);
+        } else {
+            popupAlert("Marker cannot be deleted - remove the connected links first.", mymap);
         }
     }
 
@@ -438,30 +448,30 @@ function deleteOnRightClick(event, featureGroup, markers, links, mymap) {
     }
 }
 
-function deleteOnRightClickLayer(layer, list, featureGroup){
+function deleteOnRightClickLayer(layer, list, featureGroup) {
     var name = getMarkerName(layer);
     var index = -1;
     list.forEach(l => {
-        if(l.name == name){
+        if (l.name == name) {
             index = list.indexOf(l);
             return;
         }
     });
-    list.splice(index ,1);
+    list.splice(index, 1);
     featureGroup.removeLayer(layer);
 }
 
-function deleteOnRightClickOld(event, markersGroup, linksGroup, mymap, featureGroup){
+function deleteOnRightClickOld(event, markersGroup, linksGroup, mymap, featureGroup) {
     if (event.layer instanceof L.Marker) {
         marker = event.layer;
         var connectedLinks = [];
         getConnectedLinks(marker, linksGroup, connectedLinks);
-        getConnectedLinks(marker, featureGroup ,connectedLinks)
-        if(connectedLinks.length == 0){
+        getConnectedLinks(marker, featureGroup, connectedLinks)
+        if (connectedLinks.length == 0) {
             deletedOldLayers.push(marker);
             markersGroup.removeLayer(marker);
-        }else{
-            popupAlert("Marker cannot be deleted - remove the connected links first.",mymap);
+        } else {
+            popupAlert("Marker cannot be deleted - remove the connected links first.", mymap);
         }
     }
 
@@ -470,6 +480,15 @@ function deleteOnRightClickOld(event, markersGroup, linksGroup, mymap, featureGr
         deletedOldLayers.push(link);
         linksGroup.removeLayer(link);
     }
+}
+
+function restoreDeletedLayers(markersGroup, linksGroup) {
+    deletedOldLayers.forEach(layer => {
+        if (layer instanceof L.Marker)
+            markersGroup.addLayer(layer);
+        else if (layer instanceof L.Polyline)
+            linksGroup.addLayer(layer);
+    });
 }
 
 function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
@@ -566,16 +585,6 @@ function createAddNodeForm(featureGroup, markers, mymap, pathToIcon) {
     div.style.display = "none";
     return div;
 }
-
-function restoreDeletedLayers(markersGroup, linksGroup){
-    deletedOldLayers.forEach(layer => {
-        if(layer instanceof L.Marker)
-            markersGroup.addLayer(layer);
-        else if(layer instanceof L.Polyline)
-            linksGroup.addLayer(layer);
-    });
-}
-
 
 function handleMarkerOnClick(event) {
 
@@ -1025,18 +1034,43 @@ function closeAllPopups() {
     });
 }
 
-function fixMarkersData(markers){
+function fixMarkersData(markers) {
     markers.forEach(marker => {
         marker["location"] = marker["layer"].getLatLng();
-        delete marker["layer"]; 
+        delete marker["layer"];
     });
 }
 
-function fixLinksData(links){
+function fixLinksData(links) {
     links.forEach(link => {
         link["start"] = link.layer._latlngs[0];
         link["end"] = link.layer._latlngs[1];
-        delete link["layer"]; 
+        delete link["layer"];
+    });
+}
+
+function enableOldMarkerDragging(markersGroup, linksGroup, featureGroup) {
+
+    markersGroup.eachLayer(marker => {
+        marker.dragging.enable();
+        var connectedLinks = [];
+        var markerInitLatLng;
+
+        marker.on("dragstart", e => {
+
+            connectedLinks = []
+            markerInitLatLng = e.target.getLatLng();
+            getConnectedLinks(e.target, featureGroup, connectedLinks);
+            getConnectedLinks(e.target, linksGroup, connectedLinks);
+        });
+
+        marker.on("drag", e => {
+            markerInitLatLng = connectLinkToNode(e.target, connectedLinks, markerInitLatLng);
+        })
+
+        marker.on("dragend", e => {
+            markerInitLatLng = connectLinkToNode(e.target, connectedLinks, markerInitLatLng);
+        });
     });
 }
 
