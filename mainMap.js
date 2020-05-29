@@ -391,7 +391,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         };
 
         fixMarkersData(markers);
-        fixLinksData(links);
+        // fixLinksData(links);
 
         globalVar = JSON.stringify(globalVar);
         deletedOldLayers = JSON.stringify(deletedOldLayers);
@@ -739,7 +739,8 @@ function createAddLinkForm(featureGroup, links, mymap, linksGroup) {
 
         links.push({
             "name": linkName,
-            "layer": link,
+            "start": getMarkerName(startMarker),
+            "end": getMarkerName(endMarker),
             "data": linkData,
             "isNew": true
         });
@@ -1038,14 +1039,6 @@ function fixMarkersData(markers) {
     markers.forEach(marker => {
         marker["location"] = marker["layer"].getLatLng();
         delete marker["layer"];
-    });
-}
-
-function fixLinksData(links) {
-    links.forEach(link => {
-        link["start"] = link.layer._latlngs[0];
-        link["end"] = link.layer._latlngs[1];
-        delete link["layer"];
     });
 }
 
