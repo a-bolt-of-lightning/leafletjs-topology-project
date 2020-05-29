@@ -757,7 +757,7 @@ function isLengthValid(lengthId) {
 
     if (length == null)
         return false;
-    if (isNaN(length) || length.toString().indexOf('.') == -1)
+    if (isNaN(length))
         return false;
 
     return true;
