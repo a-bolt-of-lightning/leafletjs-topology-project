@@ -459,7 +459,8 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
 // check for links connected to marker, also delete the data. - params? - only works for new nodes now
 function deleteOnRightClick(event, featureGroup, markers, links, mymap) {
-    console.log(event.layer);
+    closeAllPopups();
+    tempMarkerlist = [];
     if (event.layer instanceof L.Marker) {
         //delete data, connected links;
         marker = event.layer;
@@ -474,7 +475,6 @@ function deleteOnRightClick(event, featureGroup, markers, links, mymap) {
 
     else if (event.layer instanceof L.Polyline) {
         link = event.layer;
-        console.log(getLayerName(link));
         deleteOnRightClickLayer(link, links, featureGroup);
     }
 }
@@ -493,6 +493,8 @@ function deleteOnRightClickLayer(layer, list, featureGroup) {
 }
 
 function deleteOnRightClickOld(event, markersGroup, linksGroup, mymap, featureGroup) {
+    closeAllPopups();
+    tempMarkerlist = [];
     if (event.layer instanceof L.Marker) {
         marker = event.layer;
         var connectedLinks = [];
