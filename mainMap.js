@@ -121,7 +121,7 @@ var link = L.polyline(latlngs,
         opacity: 0.8,
         weight: 3
     }
-).addTo(linksGroup).bindTooltip("m1-m2");
+).addTo(linksGroup).bindTooltip("<h3>m1-m2</h3>");
 
 
 
@@ -302,7 +302,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     markersGroup.eachLayer(layer => {
         oldMarkers.push({
-            "name": getMarkerName(layer),
+            "name": getLayerName(layer),
             "location": layer.getLatLng(),
             "layer": layer,
             "data": {},
@@ -312,9 +312,9 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     linksGroup.eachLayer(layer => {
         oldLinks.push({
-            "name": getMarkerName(layer),
-            "start": "",
-            "end": "",
+            "name": getLayerName(layer),
+            "start": getMarkerNameByLatLng(layer.getLatLngs()[0], markersGroup),
+            "end":  getMarkerNameByLatLng(layer.getLatLngs()[1], markersGroup),
             "startLoc": layer.getLatLngs()[0],
             "endLoc": layer.getLatLngs()[1],
             "layer": layer,
@@ -411,14 +411,18 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
                 l.addTo(linksGroup);
         });
 
+        fixMarkersData(markers);
+
+        deletedOldLayers = deletedOldLayers.map(l => getLayerName(l));
+
+        //save changed old layers to markers and links
+        saveChangedOldMarkersToMarkers(oldMarkers, markers, deletedOldLayers);
+        saveChangedOldLinktoLink(oldLinks, links, deletedOldLayers);
 
         globalVar = {
             "nodes": markers,
             "links": links
         };
-
-        fixMarkersData(markers);
-        // fixLinksData(links);
 
         globalVar = JSON.stringify(globalVar);
         deletedOldLayers = JSON.stringify(deletedOldLayers);
@@ -470,13 +474,13 @@ function deleteOnRightClick(event, featureGroup, markers, links, mymap) {
 
     else if (event.layer instanceof L.Polyline) {
         link = event.layer;
-        console.log(getMarkerName(link));
+        console.log(getLayerName(link));
         deleteOnRightClickLayer(link, links, featureGroup);
     }
 }
 
 function deleteOnRightClickLayer(layer, list, featureGroup) {
-    var name = getMarkerName(layer);
+    var name = getLayerName(layer);
     var index = -1;
     list.forEach(l => {
         if (l.name == name) {
@@ -758,7 +762,7 @@ function createAddLinkForm(featureGroup, links, mymap, linksGroup) {
 
         closeAllPopups();
 
-        linkName = getMarkerName(startMarker) + "-" + getMarkerName(endMarker);
+        linkName = getLayerName(startMarker) + "-" + getLayerName(endMarker);
         link.bindTooltip("<h3>" + linkName + "</h3>");
         featureGroup.addLayer(link);
 
@@ -766,8 +770,8 @@ function createAddLinkForm(featureGroup, links, mymap, linksGroup) {
 
         links.push({
             "name": linkName,
-            "start": getMarkerName(startMarker),
-            "end": getMarkerName(endMarker),
+            "start": getLayerName(startMarker),
+            "end": getLayerName(endMarker),
             "data": linkData,
             "isNew": true
         });
@@ -846,7 +850,7 @@ function areNodeParamsValid(paramName, allValues) {
 
 }
 
-function getMarkerName(marker) {
+function getLayerName(marker) {
 
     var tooltip = marker["_tooltip"];
     if (tooltip == null || tooltip == undefined) {
@@ -1094,7 +1098,7 @@ function enableOldMarkerDragging(markersGroup, linksGroup, featureGroup) {
     });
 }
 
-function restoreDraggedLayersLocation(oldMarkers, oldLinks){
+function restoreDraggedLayersLocation(oldMarkers, oldLinks) {
 
     oldMarkers.forEach(m => {
         m.layer.setLatLng(m.location);
@@ -1107,6 +1111,42 @@ function restoreDraggedLayersLocation(oldMarkers, oldLinks){
         ]);
     });
 }
+
+function saveChangedOldMarkersToMarkers(oldMarkers, markers, deletedOldLayers) {
+    oldMarkers.forEach(m => {
+        if (!(m.location === m.layer.getLatLng()) && !deletedOldLayers.includes(m.name)) {
+            m.location = m.layer.getLatLng();
+            delete m["layer"];
+            markers.push(m);
+        }
+    });
+}
+
+function saveChangedOldLinktoLink(oldLinks, links, deletedOldLayers) {
+    oldLinks.forEach(l => {
+        if ((!(l.startLoc === l.layer.getLatLngs()[0]) || !(l.endLoc === l.layer.getLatLngs()[1]))
+            && !deletedOldLayers.includes(l.name)) {
+            delete l["layer"];
+            delete l["startLoc"];
+            delete l["endLoc"];
+            links.push(l);
+        }
+    });
+}
+
+function getMarkerNameByLatLng(latlng, featureGroup){
+    var name;
+    featureGroup.eachLayer( m => {
+        if(m instanceof L.Marker){
+            if(latlng === m.getLatLng()){
+                name = getLayerName(m);
+                return;
+            }
+        }
+    });
+    return name;
+}
+
 
 // replacement functions - do not copy them into your code, you already have them.
 function link_click_event(event) {

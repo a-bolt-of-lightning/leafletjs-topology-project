@@ -1,33 +1,41 @@
 {
     "nodes": [
         {
-            "name": "ll2",
+            "name": "ll",
             "data": {
-                "Node_Name": "ll2",
-                "ROADM_Type": "Directionless"
+                "Node_Name": "ll",
+                "ROADM_Type": "CDC"
             },
             "isNew": true,
             "location": {
-                "lat": 32.52853837595345,
-                "lng": 51.553672585203216
+                "lat": 33.44064646427304,
+                "lng": 50.91112450874136
             }
         },
         {
-            "name": "ll23",
-            "data": {
-                "Node_Name": "ll23",
-                "ROADM_Type": "Directionless"
-            },
-            "isNew": true,
+            "name": "m2",
             "location": {
-                "lat": 32.829006035561434,
-                "lng": 50.570565343942825
-            }
+                "lat": 33.01822357168308,
+                "lng": 53.910044386636386
+            },
+            "data": {},
+            "isNew": false
+        },
+        {
+            "name": "m3",
+            "location": {
+                "lat": 34.66480513099244,
+                "lng": 51.564350896276714
+            },
+            "data": {},
+            "isNew": false
         }
     ],
     "links": [
         {
-            "name": "ll-m2",
+            "name": "ll-m3",
+            "start": "ll",
+            "end": "m3",
             "data": {
                 "Length": "3.35",
                 "Fiber_Type": "0",
@@ -36,55 +44,36 @@
                 "Gamma": "1.40E-03",
                 "Dispersion": "3.16914E-19"
             },
-            "isNew": true,
-            "start": {
-                "lat": 34.72781133075222,
-                "lng": 52.50386808396775
-            },
-            "end": {
-                "lat": 34.51,
-                "lng": 54.68
-            }
+            "isNew": true
         },
         {
-            "name": "ll23-ll2",
+            "name": "m2-m3",
+            "start": "m2",
+            "end": "m3",
             "data": {
-                "Length": "3.35",
+                "Length": "3",
                 "Fiber_Type": "0",
                 "Loss_Coefficient": "0.2",
                 "Beta": "0",
                 "Gamma": "1.40E-03",
                 "Dispersion": "3.16914E-19"
             },
-            "isNew": true,
-            "start": {
-                "lat": 32.829006035561434,
-                "lng": 50.570565343942825
-            },
-            "end": {
-                "lat": 32.52853837595345,
-                "lng": 51.553672585203216
-            }
+            "isNew": true
         },
         {
-            "name": "pppp-ll23",
-            "data": {
-                "Length": "3.9",
-                "Fiber_Type": "0",
-                "Loss_Coefficient": "0.2",
-                "Beta": "0",
-                "Gamma": "1.40E-03",
-                "Dispersion": "3.16914E-19"
+            "name": "m1-m2",
+            "start": "",
+            "end": "",
+            "startLoc": {
+                "lat": 33.51,
+                "lng": 55.68
             },
-            "isNew": true,
-            "start": {
-                "lat": 33.5230967732148,
-                "lng": 51.85029399620242
+            "endLoc": {
+                "lat": 33.610253594219905,
+                "lng": 54.15170203253284
             },
-            "end": {
-                "lat": 32.829006035561434,
-                "lng": 50.570565343942825
-            }
+            "data": {},
+            "isNew": false
         }
     ]
 }
