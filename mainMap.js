@@ -99,7 +99,7 @@ markersGroup.on("click", groupClick);
 mymap.addLayer(markersGroup);
 var linksGroup = new L.FeatureGroup();
 mymap.addLayer(linksGroup);
-linksGroup.on("click", link_click_event);
+linksGroup.on("click", links_click_event);
 
 var pathToIcon = "img/server_blue.png";
 var marker1 = L.marker([33.51, 55.68], { icon: createCustomIcon(pathToIcon) })
@@ -289,7 +289,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     //turn perivious methods off
     markersGroup.off("click", groupClick);
-    linksGroup.off("click", link_click_event);
+    linksGroup.off("click", links_click_event);
 
     markersGroup.on("click", handleMarkerOnClick);
 
@@ -314,7 +314,7 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
         oldLinks.push({
             "name": getLayerName(layer),
             "start": getMarkerNameByLatLng(layer.getLatLngs()[0], markersGroup),
-            "end":  getMarkerNameByLatLng(layer.getLatLngs()[1], markersGroup),
+            "end": getMarkerNameByLatLng(layer.getLatLngs()[1], markersGroup),
             "startLoc": layer.getLatLngs()[0],
             "endLoc": layer.getLatLngs()[1],
             "layer": layer,
@@ -413,11 +413,30 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
         fixMarkersData(markers);
 
-        deletedOldLayers = deletedOldLayers.map(l => getLayerName(l));
+        var deletedOldLayersName = deletedOldLayers.map(l => getLayerName(l));
 
         //save changed old layers to markers and links
-        saveChangedOldMarkersToMarkers(oldMarkers, markers, deletedOldLayers);
-        saveChangedOldLinktoLink(oldLinks, links, deletedOldLayers);
+        saveChangedOldMarkersToMarkers(oldMarkers, markers, deletedOldLayersName);
+        saveChangedOldLinktoLink(oldLinks, links, deletedOldLayersName);
+
+        deletedOldLayers = {
+            "nodes":
+                deletedOldLayers
+                    .filter(l => l instanceof L.Marker)
+                    .map(l => getLayerName(l)),
+
+            "links":
+                deletedOldLayers
+                    .filter(l => l instanceof L.Polyline)
+                    .map(l => {
+                        name = getLayerName(l);
+                        name = name.split("-");
+                        return {
+                            "start": name[0].trim(),
+                            "end": name[1].trim()
+                        };
+                    })
+        };
 
         globalVar = {
             "nodes": markers,
@@ -456,6 +475,8 @@ function topologyMenuHandler(mymap, markersGroup, linksGroup, pathToIcon) {
 
     menu.addTo(mymap);
 }
+
+// check for links connected to marker, also delete the data. - params? - only works for new nodes now
 
 // check for links connected to marker, also delete the data. - params? - only works for new nodes now
 function deleteOnRightClick(event, featureGroup, markers, links, mymap) {
@@ -897,17 +918,17 @@ function connectLinkToNode(marker, connectedLinks, markerInitLatLng) {
         // console.log("ll" + link.getLatLngs());
         // console.log("ma" + marker.getLatLng());
 
-        var latLngStart = link._latlngs[0];
-        var latLngEnd = link._latlngs[1];
+        var latLngStart = link.getLatLngs()[0];
+        var latLngEnd = link.getLatLngs()[1];
 
-        if (latLngEnd == markerInitLatLng) {
+        if (latLngEnd.lat == markerInitLatLng.lat && latLngEnd.lng == markerInitLatLng.lng) {
 
             link.setLatLngs([
                 link.getLatLngs()[0],
                 marker.getLatLng()
             ]);
         }
-        else if (latLngStart == markerInitLatLng) {
+        else if (latLngStart.lat == markerInitLatLng.lat && latLngStart.lng == markerInitLatLng.lng) {
 
             link.setLatLngs([
                 marker.getLatLng(),
@@ -922,8 +943,13 @@ function getConnectedLinks(marker, featureGroup, connectedLinks) {
 
     featureGroup.eachLayer(layer => {
         if (layer instanceof L.Polyline) {
-            if (layer._latlngs.includes(marker.getLatLng())) {
+            if (marker.getLatLng().lat == layer.getLatLngs()[0].lat && marker.getLatLng().lng == layer.getLatLngs()[0].lng) {
                 connectedLinks.push(layer)
+                //console.log("found");
+            }
+            if (marker.getLatLng().lat == layer.getLatLngs()[1].lat && marker.getLatLng().lng == layer.getLatLngs()[1].lng) {
+                connectedLinks.push(layer)
+                //console.log("found");
             }
         }
     });
@@ -1055,7 +1081,7 @@ function createCustomIcon(pathToIcon) {
 
 function restoreOldFeatureGroupEvents(markersGroup, linksGroup) {
     markersGroup.on("click", groupClick);
-    linksGroup.on("click", link_click_event);
+    linksGroup.on("click", links_click_event);
 }
 
 function closeAllPopups() {
@@ -1136,11 +1162,11 @@ function saveChangedOldLinktoLink(oldLinks, links, deletedOldLayers) {
     });
 }
 
-function getMarkerNameByLatLng(latlng, featureGroup){
+function getMarkerNameByLatLng(latlng, featureGroup) {
     var name;
-    featureGroup.eachLayer( m => {
-        if(m instanceof L.Marker){
-            if(latlng === m.getLatLng()){
+    featureGroup.eachLayer(m => {
+        if (m instanceof L.Marker) {
+            if (latlng === m.getLatLng()) {
                 name = getLayerName(m);
                 return;
             }
@@ -1151,7 +1177,7 @@ function getMarkerNameByLatLng(latlng, featureGroup){
 
 
 // replacement functions - do not copy them into your code, you already have them.
-function link_click_event(event) {
+function links_click_event(event) {
     console.log("works link");
 }
 
